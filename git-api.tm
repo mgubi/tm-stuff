@@ -24,7 +24,7 @@
     </unfolded-io>
 
     <\input|Scheme] >
-      (load "/Users/mgubi/t/git_api_token")
+      (load "/Users/mgubi/Dropbox/Configurations/git_api_token")
     </input>
 
     <\input|Scheme] >
@@ -309,19 +309,19 @@
 
       server: GitHub.com\\x0d
 
-      date: Wed, 01 May 2024 22:47:49 GMT\\x0d
+      date: Wed, 01 May 2024 22:53:28 GMT\\x0d
 
       content-type: application/json; charset=utf-8\\x0d
 
-      content-length: 4952\\x0d
+      content-length: 4138\\x0d
 
       cache-control: private, max-age=60, s-maxage=60\\x0d
 
       vary: Accept, Authorization, Cookie, X-GitHub-OTP\\x0d
 
-      etag: \\"e6bbf2a65b069a301bed2a706c26be2b2a8809d8\\"\\x0d
+      etag: \\"cac2f8232b70a5fd33ad31d36145f8820baf9a51\\"\\x0d
 
-      last-modified: Wed, 01 May 2024 22:31:36 GMT\\x0d
+      last-modified: Wed, 01 May 2024 22:51:33 GMT\\x0d
 
       github-authentication-token-expiration: 2024-05-31 19:53:07 +0100\\x0d
 
@@ -333,11 +333,11 @@
 
       x-ratelimit-limit: 5000\\x0d
 
-      x-ratelimit-remaining: 4995\\x0d
+      x-ratelimit-remaining: 4994\\x0d
 
       x-ratelimit-reset: 1714605891\\x0d
 
-      x-ratelimit-used: 5\\x0d
+      x-ratelimit-used: 6\\x0d
 
       x-ratelimit-resource: core\\x0d
 
@@ -366,7 +366,7 @@
 
       vary: Accept-Encoding, Accept, X-Requested-With\\x0d
 
-      x-github-request-id: C5AD:3321A6:877987:8A48A5:6632C695\\x0d
+      x-github-request-id: C5CF:201CC5:1A41CA0:1AE6440:6632C7E8\\x0d
 
       \\x0d
 
@@ -416,15 +416,15 @@
 
       \ \ \ \ \\"path\\": \\"git-api.tm\\",
 
-      \ \ \ \ \\"sha\\": \\"65d7f2a606ada826cb4c3cd40394f2b90a5f6592\\",
+      \ \ \ \ \\"sha\\": \\"8fc6dbc6e1ad219a4f54c93e05cae9e4d78beea9\\",
 
-      \ \ \ \ \\"size\\": 6839,
+      \ \ \ \ \\"size\\": 25962,
 
       \ \ \ \ \\"url\\": \\"https://api.github.com/repos/mgubi/tm-stuff/contents/git-api.tm?ref=main\\",
 
       \ \ \ \ \\"html_url\\": \\"https://github.com/mgubi/tm-stuff/blob/main/git-api.tm\\",
 
-      \ \ \ \ \\"git_url\\": \\"https://api.github.com/repos/mgubi/tm-stuff/git/blobs/65d7f2a606ada826cb4c3cd40394f2b90a5f6592\\",
+      \ \ \ \ \\"git_url\\": \\"https://api.github.com/repos/mgubi/tm-stuff/git/blobs/8fc6dbc6e1ad219a4f54c93e05cae9e4d78beea9\\",
 
       \ \ \ \ \\"download_url\\": \\"https://raw.githubusercontent.com/mgubi/tm-stuff/main/git-api.tm\\",
 
@@ -434,7 +434,7 @@
 
       \ \ \ \ \ \ \\"self\\": \\"https://api.github.com/repos/mgubi/tm-stuff/contents/git-api.tm?ref=main\\",
 
-      \ \ \ \ \ \ \\"git\\": \\"https://api.github.com/repos/mgubi/tm-stuff/git/blobs/65d7f2a606ada826cb4c3cd40394f2b90a5f6592\\",
+      \ \ \ \ \ \ \\"git\\": \\"https://api.github.com/repos/mgubi/tm-stuff/git/blobs/8fc6dbc6e1ad219a4f54c93e05cae9e4d78beea9\\",
 
       \ \ \ \ \ \ \\"html\\": \\"https://github.com/mgubi/tm-stuff/blob/main/git-api.tm\\"
 
@@ -501,38 +501,6 @@
       \ \ \ \ \ \ \\"git\\": \\"https://api.github.com/repos/mgubi/tm-stuff/git/blobs/a81d642b989aa47a01fbbfc92fe14000447e2352\\",
 
       \ \ \ \ \ \ \\"html\\": \\"https://github.com/mgubi/tm-stuff/blob/main/json-parser.scm\\"
-
-      \ \ \ \ }
-
-      \ \ },
-
-      \ \ {
-
-      \ \ \ \ \\"name\\": \\"test-file-2\\",
-
-      \ \ \ \ \\"path\\": \\"test-file-2\\",
-
-      \ \ \ \ \\"sha\\": \\"0d5a690c8fad5e605a6e8766295d9d459d65de42\\",
-
-      \ \ \ \ \\"size\\": 20,
-
-      \ \ \ \ \\"url\\": \\"https://api.github.com/repos/mgubi/tm-stuff/contents/test-file-2?ref=main\\",
-
-      \ \ \ \ \\"html_url\\": \\"https://github.com/mgubi/tm-stuff/blob/main/test-file-2\\",
-
-      \ \ \ \ \\"git_url\\": \\"https://api.github.com/repos/mgubi/tm-stuff/git/blobs/0d5a690c8fad5e605a6e8766295d9d459d65de42\\",
-
-      \ \ \ \ \\"download_url\\": \\"https://raw.githubusercontent.com/mgubi/tm-stuff/main/test-file-2\\",
-
-      \ \ \ \ \\"type\\": \\"file\\",
-
-      \ \ \ \ \\"_links\\": {
-
-      \ \ \ \ \ \ \\"self\\": \\"https://api.github.com/repos/mgubi/tm-stuff/contents/test-file-2?ref=main\\",
-
-      \ \ \ \ \ \ \\"git\\": \\"https://api.github.com/repos/mgubi/tm-stuff/git/blobs/0d5a690c8fad5e605a6e8766295d9d459d65de42\\",
-
-      \ \ \ \ \ \ \\"html\\": \\"https://github.com/mgubi/tm-stuff/blob/main/test-file-2\\"
 
       \ \ \ \ }
 
