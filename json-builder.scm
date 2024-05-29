@@ -35,7 +35,9 @@
             scm->json-seq
             scm->json-seq-string))
 
-;; remove
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+;; replace these definitions with library functions!
+
 (define-macro (unless cond? . body)
   `(if (not ,cond?) (begin ,@body)))
 
@@ -49,7 +51,7 @@
           ((null? (cdr ls)) (pred? (car ls)))
           (else (and (pred? (car ls)) (lp (cdr ls)))))))
 
-(define-public (list-every pred? ls . lists)
+(define (list-every pred? ls . lists)
   "Applies @pred? on elements of @ls until it evaluates to @#f."
   ;; FIXME: pred? and ls should be interchanged
   (if (null? lists) (every1 pred? ls)
@@ -59,6 +61,16 @@
                (apply pred? (map-in-order car lists)))
               (else (and (apply pred? (map-in-order car lists))
                          (lp (map-in-order cdr lists))))))))
+
+(define (vector-every pred? vec)
+  (list-every pred? (vector->list vec)))
+
+(define (vector-for-each f v)
+     (let ((n (vector-length v)))
+          (let loop ((i 0))
+               (if (< i n)
+                    (begin (f i (vector-ref v i)) (loop (+ 1 i)))))))
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 
 
 ;;
