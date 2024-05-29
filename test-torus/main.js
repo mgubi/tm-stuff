@@ -5,6 +5,54 @@ for (const exportedName in Torus) {
     window[exportedName] = Torus[exportedName];
 }
 
+//> Convert from TeXmacs Unicode representations to Javascript's
+const fromTeXmacsEncoding = (str) => 
+    str.replace(/<\#([A-F\d]*)>/g, 
+        (match, p1) => String.fromCharCode(parseInt(`0x${p1}`)));
+
+//> Convert the JSON encoding of a TeXmacs menu into Torus components
+const makeMenu = (desc) => {
+
+    if (typeof desc == "string") 
+        return new MenuItem(fromTeXmacsEncoding(desc));
+
+    switch (desc.tag) {
+        case "hlist" : {
+            let v = desc.attrs.map( el => makeMenu(el) );
+            return new MenuBar (...v);
+        }
+        case "vlist" : {
+            let v = desc.attrs.map( el => makeMenu(el) );
+            return new Menu (...v);
+        }
+        case "help-balloon" : 
+            // ignore for the moment
+            return makeMenu(desc.attrs[0]);
+        case "menu-button" :
+            return new MenuItem(makeMenu(desc.attrs[0]).title, 
+                () => console.log(desc.attrs[1]));
+        case "popup-balloon" :
+            let s = makeMenu(desc.attrs[0]);
+            return new Dropdown(s, () => {             
+                let m = makeMenu(desc.attrs[1]); 
+                return m; 
+            });
+        case "inflate" :
+            return makeMenu(desc.attrs[0]);
+        case "greyed" : {
+                let m = makeMenu(desc.attrs[0]);
+                m.title = `[${m.title}]`; 
+                console.log(m);
+                return m;
+            }
+        case "icon" :
+            return new MenuItem(fromTeXmacsEncoding(desc.attrs[0]));
+        default :
+    }
+    console.log(`Unhandled::`);
+    console.log(desc);
+    return new MenuItem("DEFAULT");
+};
 
 class Panel extends StyledComponent {
     init () {
@@ -145,6 +193,14 @@ class Dropdown extends StyledComponent {
                 width: 100%;
             }
 
+            &.dropdown-container::after {
+                font-size: 8px;
+                content: ">>";
+                position: absolute;
+                top: 30%;
+                right: 0%;
+            }
+
             .dropdown-panel {
                 min-width: 200px;
                 position: absolute;
@@ -217,6 +273,19 @@ class Dropdown extends StyledComponent {
         }
         this.active = !this.active;
         this.render();
+    }
+}
+
+
+class Tooltip extends StyledComponent {
+    init(target, tip) {
+        this.target = target;
+        this.tip = tip;
+    }
+
+    compose() {
+        let r = this.target.node;
+        return jdom``;
     }
 }
 
@@ -313,11 +382,11 @@ const recursiveMenu  = () => {
         new MenuItem("Second item", () => console.log("Clicked the second item")), 
         new MenuSeparator(),
         new MenuItem("Third item", () => console.log("Clicked the third item")), 
-        new Dropdown(new MenuItem("A recursive submenu..."), recursiveMenu, 'right'));
+        new Dropdown(new MenuItem("A recursive submenu..."), recursiveMenu, 'right')
+    );
 }
 
-//> A component to represent the entire app, bringing together
-//  the input component and the todo list component.
+//> A component to represent the entire app
 class App extends StyledComponent {
 
     init () {
@@ -326,7 +395,10 @@ class App extends StyledComponent {
         this.mainmenu = new MenuBar(
             new MenuItem("File", () => console.log("File menu activated")),
             new MenuItem("Edit"), 
-            new Dropdown(new MenuItem("Dropdown"), recursiveMenu) );
+            new Dropdown(new MenuItem("Dropdown"), recursiveMenu),
+            new Dropdown(new MenuItem("Menubar"), () =>  makeMenu(menubar)), 
+            new Dropdown(new MenuItem("Mainmenu"), () =>  makeMenu(mainmenu)) 
+        );
     }
 
     styles() {

@@ -4325,6 +4325,41 @@
       (\<less\>#2318\<gtr\>])") "right" ""))
     </unfolded-io>
 
+    <\unfolded-io|Scheme] >
+      save
+    <|unfolded-io>
+      <errput|Unbound variable: save>
+    </unfolded-io>
+
+    <\unfolded-io|Scheme] >
+      load
+    <|unfolded-io>
+      #\<less\>procedure load-module (filename . reader)\<gtr\>
+    </unfolded-io>
+
+    <\unfolded-io|Scheme] >
+      write
+    <|unfolded-io>
+      #\<less\>procedure write l\<gtr\>
+    </unfolded-io>
+
+    <\input|Scheme] >
+      (use-modules (ice-9 pretty-print))
+    </input>
+
+    <\input|Scheme] >
+      (define mm (build-menu-widget `((horizontal (link texmacs-menu))) 0))
+    </input>
+
+    <\input|Scheme] >
+      (pretty-print mm)
+    </input>
+
+    <\input|Scheme] >
+      (with-output-to-file "/Users/mgubi/t/tm-stuff/test" (lambda ()
+      (pretty-print mm)))
+    </input>
+
     <\input|Scheme] >
       \;
     </input>

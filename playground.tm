@@ -151,6 +151,25 @@
       144)\\"]},{\\"tag\\":\\"inflate\\",\\"attrs\\":[\\"Browse forward
       (\<less\>#2318\<gtr\>])\\"]},\\"right\\",\\"\\"]}]}"
     </unfolded-io>
+
+    <\input|Scheme] >
+      (load "/Users/mgubi/t/tm-stuff/mainmenu-example.scm")
+    </input>
+
+    <\unfolded-io|Scheme] >
+      (with-output-to-file "/Users/mgubi/t/tm-stuff/test" )
+    <|unfolded-io>
+      <errput|Wrong type argument in position 1: #\<unspecified\>>
+    </unfolded-io>
+
+    <\input|Scheme] >
+      (with-output-to-file "/Users/mgubi/t/tm-stuff/test" (lambda ()
+      (pretty-print (scm-\<gtr\>json-string (process mainmenu)))))
+    </input>
+
+    <\input|Scheme] >
+      \;
+    </input>
   </session>
 </body>
 
