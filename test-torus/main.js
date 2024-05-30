@@ -26,8 +26,7 @@ const makeMenu = (desc) => {
             return new Menu (...v);
         }
         case "help-balloon" : 
-            // ignore for the moment
-            return makeMenu(desc.attrs[0]);
+            return new Tooltip(makeMenu(desc.attrs[0]), makeMenu(desc.attrs[1]));
         case "menu-button" :
             return new MenuItem(makeMenu(desc.attrs[0]).title, 
                 () => console.log(desc.attrs[1]));
@@ -283,15 +282,46 @@ class Tooltip extends StyledComponent {
         this.tip = tip;
     }
 
+    styles() {
+        return css`
+        position: relative;
+        display: inline-block;
+        border-bottom: 1px dotted black; /* If you want dots under the hoverable text */
+
+        /* Tooltip text */
+        & .tooltip-tip {
+            visibility: hidden;
+            background-color: black;
+            color: #fff;
+            text-align: center;
+            padding: 5px 0;
+            border-radius: 6px;
+ 
+            opacity: 0;
+            transition: opacity 0s linear 0s;
+          
+            /* Position the tooltip text - see examples below! */
+            position: absolute;
+            z-index: 1;
+        }
+
+        /* Show the tooltip text when you mouse over the tooltip container */
+        &:hover > div.tooltip-tip {
+            visibility: visible;
+            opacity: 1;
+            transition: opacity 0.25s linear 1.5s;
+        }`;
+    }
+
     compose() {
         let r = this.target.node;
-        return jdom``;
+        return jdom`<div class="tooltip">${r}<div class="tooltip-tip">${this.tip.node}</div></div>`;
     }
 }
 
 class MenuSeparator extends Component {
     compose() {
-        return jdom`<li class="separator"></li>`;
+        return jdom`<div class="separator"></div>`;
     }
 }
 
@@ -303,11 +333,16 @@ class MenuItem extends Component {
     }
 
     compose () {
+        console.log(this.title);
         if (this.command) {
-            return jdom`<li onclick="${this.handleClick}">${this.title}</li>`;
+            return jdom`<div onclick="${this.handleClick}">${this.title}</div>`;
         } else {
-            return jdom`<li>${this.title}</li>`;
+            return jdom`<div>${this.title}</div>`;
         }
+    }
+
+    new_compose() {
+        let t = this.title;
     }
 
     handleClick(e) {
@@ -356,7 +391,11 @@ class Menu extends StyledComponent {
     }
 
     compose () {
-        return jdom`<menu>${this.items.map( i => i.node)}</menu>`;
+        return { tag: "menu", 
+                 attrs:{} , 
+                 events:{}, 
+                 children: this.items.map( i => { 
+                    return { tag: "li", attrs:{} , events:{}, children:[ i.node ] }; }) };
     }
 
     remove () {
