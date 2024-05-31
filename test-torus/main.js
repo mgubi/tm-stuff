@@ -11,10 +11,10 @@ const fromTeXmacsEncoding = (str) =>
         (match, p1) => String.fromCharCode(parseInt(`0x${p1}`)));
 
 //> Convert the JSON encoding of a TeXmacs menu into Torus components
-const makeMenu = (desc) => {
+const makeMenu = (desc, props = {}) => {
 
     if (typeof desc == "string") 
-        return new MenuItem(fromTeXmacsEncoding(desc));
+        return new MenuItem(fromTeXmacsEncoding(desc), props);
 
     switch (desc.tag) {
         case "hlist" : {
@@ -26,31 +26,35 @@ const makeMenu = (desc) => {
             return new Menu (...v);
         }
         case "help-balloon" : 
-            return new Tooltip(makeMenu(desc.attrs[0]), makeMenu(desc.attrs[1]));
+            props.tooltip =  makeMenu(desc.attrs[1]);
+            return makeMenu(desc.attrs[0], props);
         case "menu-button" :
-            return new MenuItem(makeMenu(desc.attrs[0]).title, 
-                () => console.log(desc.attrs[1]));
+            let prev_command = props.command;
+            props.command = () => {
+                console.log(desc.attrs[1]);
+                prev_command?.apply();
+            }
+            return makeMenu(desc.attrs[0], props); 
         case "popup-balloon" :
-            let s = makeMenu(desc.attrs[0]);
+            let s = makeMenu(desc.attrs[0], props);
             return new Dropdown(s, () => {             
                 let m = makeMenu(desc.attrs[1]); 
                 return m; 
             });
         case "inflate" :
-            return makeMenu(desc.attrs[0]);
+            return makeMenu(desc.attrs[0], props);
         case "greyed" : {
-                let m = makeMenu(desc.attrs[0]);
-                m.title = `[${m.title}]`; 
-                console.log(m);
-                return m;
-            }
+            let m = makeMenu(desc.attrs[0], props);
+            m.title = `[${m.title}]`; 
+            return m;
+        }
         case "icon" :
-            return new MenuItem(fromTeXmacsEncoding(desc.attrs[0]));
+            return new MenuItem(fromTeXmacsEncoding(desc.attrs[0]), props);
         default :
     }
     console.log(`Unhandled::`);
     console.log(desc);
-    return new MenuItem("DEFAULT");
+    return new MenuItem("DEFAULT", props);
 };
 
 class Panel extends StyledComponent {
@@ -275,7 +279,6 @@ class Dropdown extends StyledComponent {
     }
 }
 
-
 class Tooltip extends StyledComponent {
     init(target, tip) {
         this.target = target;
@@ -302,7 +305,11 @@ class Tooltip extends StyledComponent {
           
             /* Position the tooltip text - see examples below! */
             position: absolute;
-            z-index: 1;
+            left: 100%;
+            z-index: 2;
+
+            max-width: 400px;
+            width: auto;
         }
 
         /* Show the tooltip text when you mouse over the tooltip container */
@@ -314,7 +321,8 @@ class Tooltip extends StyledComponent {
     }
 
     compose() {
-        let r = this.target.node;
+        // target can be a string or a Component
+        let r = this.target.node || this.target;
         return jdom`<div class="tooltip">${r}<div class="tooltip-tip">${this.tip.node}</div></div>`;
     }
 }
@@ -326,23 +334,20 @@ class MenuSeparator extends Component {
 }
 
 class MenuItem extends Component {
-    init (title, command) {
-        this.title = title;
-        this.command = command;
+    init (title, props = {}) {
+        this.title = props.tooltip ? new Tooltip(title, props.tooltip) : title;
+        this.command = props?.command;
         this.handleClick = this.handleClick.bind(this);
     }
 
     compose () {
-        console.log(this.title);
+         // target can be a string or a Component
+        let r = this.title.node || this.title;
         if (this.command) {
-            return jdom`<div onclick="${this.handleClick}">${this.title}</div>`;
+            return jdom`<div onclick="${this.handleClick}">${r}</div>`;
         } else {
-            return jdom`<div>${this.title}</div>`;
+            return jdom`<div>${r}</div>`;
         }
-    }
-
-    new_compose() {
-        let t = this.title;
     }
 
     handleClick(e) {
@@ -417,10 +422,10 @@ class MenuBar extends Menu {
 // a test example
 const recursiveMenu  = () => {
    return new Menu(
-        new MenuItem("First item", () => console.log("Clicked the first item")), 
-        new MenuItem("Second item", () => console.log("Clicked the second item")), 
+        new MenuItem("First item", { command: () => console.log("Clicked the first item") }), 
+        new MenuItem("Second item", { command:  () => console.log("Clicked the second item") }), 
         new MenuSeparator(),
-        new MenuItem("Third item", () => console.log("Clicked the third item")), 
+        new MenuItem("Third item", { command:  () => console.log("Clicked the third item") }), 
         new Dropdown(new MenuItem("A recursive submenu..."), recursiveMenu, 'right')
     );
 }
@@ -432,11 +437,11 @@ class App extends StyledComponent {
         this.panels = [ new Panel(), new Panel(), new Panel() ];
         this.button = new PopupButton();
         this.mainmenu = new MenuBar(
-            new MenuItem("File", () => console.log("File menu activated")),
+            new MenuItem("File", { command:  () => console.log("File menu activated") }),
             new MenuItem("Edit"), 
             new Dropdown(new MenuItem("Dropdown"), recursiveMenu),
-            new Dropdown(new MenuItem("Menubar"), () =>  makeMenu(menubar)), 
-            new Dropdown(new MenuItem("Mainmenu"), () =>  makeMenu(mainmenu)) 
+            new Dropdown(new MenuItem("Menubar"),  () =>  makeMenu(menubar) ), 
+            new Dropdown(new MenuItem("Mainmenu"),  () =>  makeMenu(mainmenu) ) 
         );
     }
 
@@ -543,7 +548,7 @@ class App extends StyledComponent {
     }
 
     compose() {
-        //> The app is really just both components' nodes wrapped
+        //> The app is really just components' nodes wrapped
         //  in a single div.
         return jdom`<main>
            <header class="prevent-select">
