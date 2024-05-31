@@ -36,11 +36,12 @@ const makeMenu = (desc, props = {}) => {
             }
             return makeMenu(desc.attrs[0], props); 
         case "popup-balloon" :
+            console.log(desc);
             let s = makeMenu(desc.attrs[0], props);
             return new Dropdown(s, () => {             
                 let m = makeMenu(desc.attrs[1]); 
                 return m; 
-            });
+            }, desc.attrs[2].toLowerCase(), desc.attrs[3].toLowerCase());
         case "inflate" :
             return makeMenu(desc.attrs[0], props);
         case "greyed" : {
@@ -174,10 +175,10 @@ class PopupButton extends StyledComponent {
 }
 
 class Dropdown extends StyledComponent {
-    init (target, menupromise, direction = 'down') {
+    init (target, menupromise, x_dir = 'left', y_dir = 'bottom') {
         this.active = false;
         this.target = target;
-        this.direction = direction;
+        this.direction = x_dir + '-' + y_dir;
         this.menupromise = menupromise;
         this.menu = undefined;
 
@@ -215,30 +216,31 @@ class Dropdown extends StyledComponent {
                 box-shadow: 0 3px 8px -1px rgba(0, 0, 0, .3);
             }
 
-            .direction-down {
-                top: 110%;
+            .direction-left-bottom {
                 left: 0%;
+                top: 100%;
             }
 
-            .direction-right {
-                top: 0%;
+            .direction-right-top {
                 left: 100%;
-            }
-
-            .direction-left {
                 top: 0%;
-                right: 100%;
             }
 
-            .direction-up {
-                bottom: 100%;
+            .direction-left-top {
                 left: 0%;
+                top: 0%;
+            }
+
+            .direction-right-bottom {
+                left: 100%;
+                top: 100%;
             }
         `;
     }
 
     compose() {
         if (this.active) {
+            console.log(this);
             this.menu ||= this.menupromise();
             return jdom`<span class="dropdown-container active"> 
                         <span class="dropdown-target"  onpointerdown="${this.toggle}">${this.target.node}</span>  
