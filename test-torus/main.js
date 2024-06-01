@@ -596,11 +596,11 @@ class App extends StyledComponent {
                 border: 0;
                 cursor: pointer;
             }
+
             .active {
                 background-color: #ddd;
                 border-radius: 4px;
             }
-
 
             .dark {
                 font-size: 200%;
@@ -657,8 +657,13 @@ class App extends StyledComponent {
         return jdom`<main>
            <header class="prevent-select">
             <div class="mainmenu">
-                <button class="dark" style="position:relative; width:60px;">
-                <span style="position:absolute; top:-3px; left:-10px"> &#12296;&#964;&#12297; </span>
+                <button class="dark" style="width:60px;">
+                <!-- Tau logo  -->
+                <span style="position:relative; top:2px; left:0px;">
+                    <span style="position:relative; top:-5px; left:-20px; width:100%">&#12296;</span>
+                    <span style="position:relative; top:-8px; left:-22px">&#964;</span>
+                    <span style="position:relative; top:-5px; left:-22px; width:100%">&#12297;</span>
+                </span>
                 </button>
                 ${this.mainmenu.node}
                 ${this.button.node}    
