@@ -10,6 +10,42 @@ const fromTeXmacsEncoding = (str) =>
     str.replace(/<\#([A-F\d]*)>/g, 
         (match, p1) => String.fromCharCode(parseInt(`0x${p1}`)));
 
+const teXmacsColors = {
+    "black":"#000000",
+    "white":"#FFFFFF",
+    "grey":"#B8B8B8",
+    "red":"#FF0000",
+    "blue":"#0000FF",
+    "yellow":"#FFFF00",
+    "green":"#00FF00",
+    "magenta":"#FF00FF",
+    "cyan":"#00FFFF",
+    "orange":"#FF8000",
+    "brown":"#802000",
+    "pink":"#FF8080",
+    "broken white":"#FFFFDF",
+    "light grey":"#D0D0D0",
+    "dark grey":"#707070",
+    "darker grey":"#404040",
+    "dark red":"#800000",
+    "dark blue":"#000080",
+    "dark yellow":"#808000",
+    "dark green":"#008000",
+    "dark magenta":"#800080",
+    "dark cyan":"#008080",
+    "dark orange":"#804000",
+    "dark brown":"#401000",
+    "pastel grey":"#DFDFDF",
+    "pastel red":"#FFDFDF",
+    "pastel blue":"#DFDFFF",
+    "pastel yellow":"#FFFFDF",
+    "pastel green":"#DFFFDF",
+    "pastel magenta":"#FFDFFF",
+    "pastel cyan":"#DFFFFF",
+    "pastel orange":"#FFDFBF",
+    "pastel brown":"#DFBFBF"
+};
+
 //> Convert the JSON encoding of a TeXmacs menu into Torus components
 const makeMenu = (desc, props = {}) => {
 
@@ -29,28 +65,34 @@ const makeMenu = (desc, props = {}) => {
             props.tooltip =  makeMenu(desc.attrs[1]);
             return makeMenu(desc.attrs[0], props);
         case "menu-button" :
-            let prev_command = props.command;
+            let prevCommand = props.command;
             props.command = () => {
                 console.log(desc.attrs[1]);
-                prev_command?.apply();
-            }
+                prevCommand?.apply(); };
             return makeMenu(desc.attrs[0], props); 
         case "popup-balloon" :
-            console.log(desc);
-            let s = makeMenu(desc.attrs[0], props);
-            return new Dropdown(s, () => {             
-                let m = makeMenu(desc.attrs[1]); 
-                return m; 
-            }, desc.attrs[2].toLowerCase(), desc.attrs[3].toLowerCase());
+            return new Dropdown(makeMenu(desc.attrs[0], props), 
+                () => {             
+                    let m = makeMenu(desc.attrs[1]); 
+                    return m; }, 
+                desc.attrs[2].toLowerCase(), 
+                desc.attrs[3].toLowerCase());
         case "inflate" :
             return makeMenu(desc.attrs[0], props);
-        case "greyed" : {
-            let m = makeMenu(desc.attrs[0], props);
-            m.title = `[${m.title}]`; 
-            return m;
-        }
+        case "greyed" : 
+            props.greyed = true;
+            return makeMenu(desc.attrs[0], props);
+        case "with-explicit-buttons" :
+            props.withExplicitButtons = true;
+            return makeMenu(desc.attrs[0], props);
         case "icon" :
-            return new MenuItem(fromTeXmacsEncoding(desc.attrs[0]), props);
+            return new MenuItem(new ImageComponent(fromTeXmacsEncoding(desc.attrs[0])), props);
+        case "tiled" :
+            return new TileComponent(parseInt(desc.attrs[0]), desc.attrs.slice(1).map( el => makeMenu(el) ));
+        case "monochrome" :
+            let col = teXmacsColors[desc.attrs[2]];
+            if (!col) console.log(desc.attrs[2]);
+            return new MonochromeComponent( col ? col : desc.attrs[2]);
         default :
     }
     console.log(`Unhandled::`);
@@ -198,10 +240,10 @@ class Dropdown extends StyledComponent {
             }
 
             &.dropdown-container::after {
-                font-size: 8px;
-                content: ">>";
+                font-size: 12px;
+                content: "\\25BF";
                 position: absolute;
-                top: 30%;
+                top: 60%;
                 right: 0%;
             }
 
@@ -240,7 +282,6 @@ class Dropdown extends StyledComponent {
 
     compose() {
         if (this.active) {
-            console.log(this);
             this.menu ||= this.menupromise();
             return jdom`<span class="dropdown-container active"> 
                         <span class="dropdown-target"  onpointerdown="${this.toggle}">${this.target.node}</span>  
@@ -297,9 +338,9 @@ class Tooltip extends StyledComponent {
         & .tooltip-tip {
             visibility: hidden;
             background-color: black;
-            color: #fff;
+            color: #ddd;
             text-align: center;
-            padding: 5px 0;
+            padding: 5px 5px;
             border-radius: 6px;
  
             opacity: 0;
@@ -311,7 +352,7 @@ class Tooltip extends StyledComponent {
             z-index: 2;
 
             max-width: 400px;
-            width: auto;
+            min-width: 100px;
         }
 
         /* Show the tooltip text when you mouse over the tooltip container */
@@ -335,28 +376,86 @@ class MenuSeparator extends Component {
     }
 }
 
+class MonochromeComponent extends Component {
+    init (color) {
+        this.color = color;
+    }
+
+    compose() {
+        return jdom`<div class="monochrome" style="width: 20px; height: 20px; background-color:${this.color}"></div>`;
+    }
+}
+
+class TileComponent extends StyledComponent {
+    init(cols, tiles) {
+        let a = [];
+        while (tiles.length) a.push(tiles.splice(0,cols));
+        this.tiles = a;
+    }
+
+    styles() {
+        return css`
+            display: flex;
+            flex-flow: column nowrap;
+          
+            & .row {
+                display: flex;
+            }
+          
+            & .cell {
+                display: flex;
+                flex: 1;
+                justify-content: center;
+                align-items: center;
+            }
+        `;
+    }
+
+    compose() {
+        let x= jdom`<div class="table">
+          ${this.tiles.map( row => jdom`<div class="row"> 
+                ${row.map (el => jdom`<div class="cell">${el.node}</div>`)}
+                </div>` )} 
+        </div>`;
+        return x;
+    }
+}
+
+
 class MenuItem extends Component {
     init (title, props = {}) {
         this.title = props.tooltip ? new Tooltip(title, props.tooltip) : title;
-        this.command = props?.command;
+        this.command = props.command;
+        if (props.greyed) this.greyed = true;
         this.handleClick = this.handleClick.bind(this);
     }
 
     compose () {
-         // target can be a string or a Component
-        let r = this.title.node || this.title;
-        if (this.command) {
-            return jdom`<div onclick="${this.handleClick}">${r}</div>`;
-        } else {
-            return jdom`<div>${r}</div>`;
-        }
-    }
+       let el = {
+            tag: "div", attrs: {},  events : {},
+            // target can be a string or a Component
+            children: [ this.title.jdom || this.title ]
+       }
+       if (this.command) el.events["click"] =  [ this.handleClick ];
+       if (this.greyed) el.attrs.class = [ "greyed" ]; 
+       return el;
+   }
 
     handleClick(e) {
         // run the command
         if (this.command) this.command();
         // deactivate the chain of submenus in which the element resides
         this.node.dispatchEvent(new CustomEvent("menu-deactivate", { detail:null, bubbles:true }));
+    }
+}
+
+class ImageComponent extends Component {
+    init(name) {
+        this.name = name;
+    }
+
+    compose() {
+        return jdom`<img src="${"./assets/images/" + this.name}" style="width: 20px;" alt="${this.name}"">`;
     }
 }
 
@@ -374,7 +473,6 @@ class Menu extends StyledComponent {
             text-align: left;
             font-size: 10pt;
             line-height: 1.5;
-            text-wrap: nowrap;
  
             li {
                 padding: 0px 10px;
@@ -394,15 +492,19 @@ class Menu extends StyledComponent {
                 background-color: #ddd;
                 border-radius: 3px;
             }
+
+            .greyed {
+                color: #ccc;
+            }
         `;
     }
 
     compose () {
         return { tag: "menu", 
-                 attrs:{} , 
-                 events:{}, 
+                 attrs:{} , events:{}, 
                  children: this.items.map( i => { 
-                    return { tag: "li", attrs:{} , events:{}, children:[ i.node ] }; }) };
+                    return { tag: "li", attrs: {} , 
+                             events: {}, children:[ i.node ] }; }) };
     }
 
     remove () {
@@ -555,8 +657,8 @@ class App extends StyledComponent {
         return jdom`<main>
            <header class="prevent-select">
             <div class="mainmenu">
-                <button class="dark" style="position:relative; width:80px;">
-                    <span style="position:absolute; top:-6px; left:12px"> &#964;au </span>
+                <button class="dark" style="position:relative; width:60px;">
+                <span style="position:absolute; top:-3px; left:-10px"> &#12296;&#964;&#12297; </span>
                 </button>
                 ${this.mainmenu.node}
                 ${this.button.node}    

@@ -171,6 +171,166 @@
       \;
     </input>
   </session>
+
+  \;
+
+  \;
+
+  <hrule>
+
+  Convert TeXmacs colors to Javascript notation
+
+  <\session|scheme|default>
+    <\input|Scheme] >
+      (define pastel 223)
+
+      \;
+    </input>
+
+    <\input|Scheme] >
+      (define dark-pastel (- (* 2 pastel) 255))
+
+      \;
+    </input>
+
+    <\input|Scheme] >
+      (define texmacs-colors
+
+      \ \ \ `(("black" (0 0 0)) ("white" (255 255 255)) ("grey" (184 184
+      184))
+
+      \ \ \ \ \ ("red" (255 0 0)) ("blue" (0 0 255)) ("yellow" (255 255 0))
+
+      \ \ \ \ \ ("green" (0 255 0)) ("magenta" (255 0 255)) ("cyan" (0 255
+      255))
+
+      \ \ \ \ \ ("orange" (255 128 0)) ("brown" (128 32 0)) ("pink" (255 128
+      128))
+
+      \ \ \ \ \ ("broken white" (255 255 ,pastel)) ("light grey" (208 208
+      208))
+
+      \ \ \ \ \ ("dark grey" (112 112 112)) ("darker grey" (64 64 64))
+
+      \ \ \ \ \ ("dark red" (128 0 0)) ("dark blue" (0 0 128))
+
+      \ \ \ \ \ ("dark yellow" (128 128 0)) ("dark green" (0 128 0))
+
+      \ \ \ \ \ ("dark magenta" (128 0 128)) ("dark cyan" (0 128 128))
+
+      \ \ \ \ \ ("dark orange" (128 64 0)) ("dark brown" (64 16 0))
+
+      \ \ \ \ \ ("pastel grey" (,pastel ,pastel ,pastel))
+
+      \ \ \ \ \ ("pastel red" (255 ,pastel ,pastel)) ("pastel blue" (,pastel
+      ,pastel 255))
+
+      \ \ \ \ \ ("pastel yellow" (255 255 ,pastel)) ("pastel green" (,pastel
+      255 ,pastel))
+
+      \ \ \ \ \ ("pastel magenta" (255 ,pastel 255)) ("pastel cyan" (,pastel
+      255 255))
+
+      \ \ \ \ \ ("pastel orange" (255 ,pastel ,dark-pastel))
+
+      \ \ \ \ \ ("pastel brown" (,pastel ,dark-pastel ,dark-pastel))))
+    </input>
+
+    <\unfolded-io|Scheme] >
+      texmacs-colors
+    <|unfolded-io>
+      (("black" (0 0 0)) ("white" (255 255 255)) ("grey" (184 184 184))
+      ("red" (255 0 0)) ("blue" (0 0 255)) ("yellow" (255 255 0)) ("green" (0
+      255 0)) ("magenta" (255 0 255)) ("cyan" (0 255 255)) ("orange" (255 128
+      0)) ("brown" (128 32 0)) ("pink" (255 128 128)) ("broken white" (255
+      255 223)) ("light grey" (208 208 208)) ("dark grey" (112 112 112))
+      ("darker grey" (64 64 64)) ("dark red" (128 0 0)) ("dark blue" (0 0
+      128)) ("dark yellow" (128 128 0)) ("dark green" (0 128 0)) ("dark
+      magenta" (128 0 128)) ("dark cyan" (0 128 128)) ("dark orange" (128 64
+      0)) ("dark brown" (64 16 0)) ("pastel grey" (223 223 223)) ("pastel
+      red" (255 223 223)) ("pastel blue" (223 223 255)) ("pastel yellow" (255
+      255 223)) ("pastel green" (223 255 223)) ("pastel magenta" (255 223
+      255)) ("pastel cyan" (223 255 255)) ("pastel orange" (255 223 191))
+      ("pastel brown" (223 191 191)))
+    </unfolded-io>
+
+    <\input|Scheme] >
+      (define hex-digit #(#\\0 #\\1 #\\2 #\\3 #\\4 #\\5 #\\6 #\\7 #\\8 #\\9
+      #\\A #\\B #\\C #\\D #\\E #\\F))
+    </input>
+
+    <\input|Scheme] >
+      (define (rgbcode arr) (list-\<gtr\>string (cons #\\# (map (lambda (e)
+      (vector-ref hex-digit e)) (apply append (map (lambda (e) (list
+      (quotient e 16) (remainder e 16))) arr)) ))))
+    </input>
+
+    <\input|Scheme] >
+      (call-with-output-file "/Users/mgubi/t/tm-stuff/texmacs-colors-2.js"\ 
+
+      \ \ \ \ (lambda (port) (write\ 
+
+      \ \ \ \ \ \ \ \ (scm-\<gtr\>json-string (map\ 
+
+      \ \ \ \ \ \ \ \ \ \ \ \ (lambda (e) `(,(car e) . ,(rgbcode (cadr e))))\ 
+
+      \ \ \ \ \ \ \ \ \ \ \ \ texmacs-colors)) port)))
+    </input>
+
+    <\unfolded-io|Scheme] >
+      (scm-\<gtr\>json-string (map\ 
+
+      \ \ \ \ \ \ \ \ \ \ \ \ (lambda (e) `(,(car e) . ,(rgbcode (cadr e))))\ 
+
+      \ \ \ \ \ \ \ \ \ \ \ \ texmacs-colors))
+    <|unfolded-io>
+      "{\\"black\\":\\"#000000\\",\\"white\\":\\"#FFFFFF\\",\\"grey\\":\\"#B8B8B8\\",\\"red\\":\\"#FF0000\\",\\"blue\\":\\"#0000FF\\",\\"yellow\\":\\"#FFFF00\\",\\"green\\":\\"#00FF00\\",\\"magenta\\":\\"#FF00FF\\",\\"cyan\\":\\"#00FFFF\\",\\"orange\\":\\"#FF8000\\",\\"brown\\":\\"#802000\\",\\"pink\\":\\"#FF8080\\",\\"broken
+      white\\":\\"#FFFFDF\\",\\"light grey\\":\\"#D0D0D0\\",\\"dark
+      grey\\":\\"#707070\\",\\"darker grey\\":\\"#404040\\",\\"dark
+      red\\":\\"#800000\\",\\"dark blue\\":\\"#000080\\",\\"dark
+      yellow\\":\\"#808000\\",\\"dark green\\":\\"#008000\\",\\"dark
+      magenta\\":\\"#800080\\",\\"dark cyan\\":\\"#008080\\",\\"dark
+      orange\\":\\"#804000\\",\\"dark brown\\":\\"#401000\\",\\"pastel
+      grey\\":\\"#DFDFDF\\",\\"pastel red\\":\\"#FFDFDF\\",\\"pastel
+      blue\\":\\"#DFDFFF\\",\\"pastel yellow\\":\\"#FFFFDF\\",\\"pastel
+      green\\":\\"#DFFFDF\\",\\"pastel magenta\\":\\"#FFDFFF\\",\\"pastel
+      cyan\\":\\"#DFFFFF\\",\\"pastel orange\\":\\"#FFDFBF\\",\\"pastel
+      brown\\":\\"#DFBFBF\\"}"
+    </unfolded-io>
+
+    <\unfolded-io|Scheme] >
+      (stree-\<gtr\>tree "{\\"black\\":\\"#000000\\",\\"white\\":\\"#FFFFFF\\",\\"grey\\":\\"#B8B8B8\\",\\"red\\":\\"#FF0000\\",\\"blue\\":\\"#0000FF\\",\\"yellow\\":\\"#FFFF00\\",\\"green\\":\\"#00FF00\\",\\"magenta\\":\\"#FF00FF\\",\\"cyan\\":\\"#00FFFF\\",\\"orange\\":\\"#FF8000\\",\\"brown\\":\\"#802000\\",\\"pink\\":\\"#FF8080\\",\\"broken
+      white\\":\\"#FFFFDF\\",\\"light grey\\":\\"#D0D0D0\\",\\"dark
+      grey\\":\\"#707070\\",\\"darker grey\\":\\"#404040\\",\\"dark
+      red\\":\\"#800000\\",\\"dark blue\\":\\"#000080\\",\\"dark
+      yellow\\":\\"#808000\\",\\"dark green\\":\\"#008000\\",\\"dark
+      magenta\\":\\"#800080\\",\\"dark cyan\\":\\"#008080\\",\\"dark
+      orange\\":\\"#804000\\",\\"dark brown\\":\\"#401000\\",\\"pastel
+      grey\\":\\"#DFDFDF\\",\\"pastel red\\":\\"#FFDFDF\\",\\"pastel
+      blue\\":\\"#DFDFFF\\",\\"pastel yellow\\":\\"#FFFFDF\\",\\"pastel
+      green\\":\\"#DFFFDF\\",\\"pastel magenta\\":\\"#FFDFFF\\",\\"pastel
+      cyan\\":\\"#DFFFFF\\",\\"pastel orange\\":\\"#FFDFBF\\",\\"pastel
+      brown\\":\\"#DFBFBF\\"}")
+    <|unfolded-io>
+      <text|{"black":"#000000","white":"#FFFFFF","grey":"#B8B8B8","red":"#FF0000","blue":"#0000FF","yellow":"#FFFF00","green":"#00FF00","magenta":"#FF00FF","cyan":"#00FFFF","orange":"#FF8000","brown":"#802000","pink":"#FF8080","broken
+      white":"#FFFFDF","light grey":"#D0D0D0","dark grey":"#707070","darker
+      grey":"#404040","dark red":"#800000","dark blue":"#000080","dark
+      yellow":"#808000","dark green":"#008000","dark magenta":"#800080","dark
+      cyan":"#008080","dark orange":"#804000","dark brown":"#401000","pastel
+      grey":"#DFDFDF","pastel red":"#FFDFDF","pastel blue":"#DFDFFF","pastel
+      yellow":"#FFFFDF","pastel green":"#DFFFDF","pastel
+      magenta":"#FFDFFF","pastel cyan":"#DFFFFF","pastel
+      orange":"#FFDFBF","pastel brown":"#DFBFBF"}>
+    </unfolded-io>
+
+    <\input|Scheme] >
+      \;
+    </input>
+  </session>
+
+  \;
+
+  \;
 </body>
 
 <initial|<\collection>
