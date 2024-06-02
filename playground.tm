@@ -28,9 +28,9 @@
       (use-modules (json builder))
     </input>
 
-    <\unfolded-io|Scheme] >
+    <\folded-io|Scheme] >
       (scm-\<gtr\>json-string (process bar-example))\ 
-    <|unfolded-io>
+    <|folded-io>
       "{\\"tag\\":\\"hlist\\",\\"attrs\\":[{\\"tag\\":\\"help-balloon\\",\\"attrs\\":[{\\"tag\\":\\"menu-button\\",\\"attrs\\":[{\\"tag\\":\\"inflate\\",\\"attrs\\":[{\\"tag\\":\\"icon\\",\\"attrs\\":[\\"tm_new_x4.png\\"]}]},\\"(eval-nullary-mangled
       73)\\"]},{\\"tag\\":\\"inflate\\",\\"attrs\\":[\\"Create a new document
       (\<less\>#2318\<gtr\>N)\\"]},\\"right\\",\\"\\"]},{\\"tag\\":\\"help-balloon\\",\\"attrs\\":[{\\"tag\\":\\"popup-balloon\\",\\"attrs\\":[{\\"tag\\":\\"icon\\",\\"attrs\\":[\\"tm_open_x4.png\\"]},{\\"tag\\":\\"vlist\\",\\"attrs\\":[{\\"tag\\":\\"menu-button\\",\\"attrs\\":[{\\"tag\\":\\"inflate\\",\\"attrs\\":[{\\"tag\\":\\"inflate\\",\\"attrs\\":[\\"Load\\"]}]},\\"(eval-nullary-mangled
@@ -150,7 +150,7 @@
       143)\\"]},{\\"tag\\":\\"inflate\\",\\"attrs\\":[\\"Reload\\"]},\\"right\\",\\"\\"]},{\\"tag\\":\\"help-balloon\\",\\"attrs\\":[{\\"tag\\":\\"menu-button\\",\\"attrs\\":[{\\"tag\\":\\"inflate\\",\\"attrs\\":[{\\"tag\\":\\"icon\\",\\"attrs\\":[\\"tm_forward_x4.png\\"]}]},\\"(eval-nullary-mangled
       144)\\"]},{\\"tag\\":\\"inflate\\",\\"attrs\\":[\\"Browse forward
       (\<less\>#2318\<gtr\>])\\"]},\\"right\\",\\"\\"]}]}"
-    </unfolded-io>
+    </folded-io>
 
     <\input|Scheme] >
       (load "/Users/mgubi/t/tm-stuff/mainmenu-example.scm")
@@ -166,6 +166,57 @@
       (with-output-to-file "/Users/mgubi/t/tm-stuff/test" (lambda ()
       (pretty-print (scm-\<gtr\>json-string (process mainmenu)))))
     </input>
+
+    <\input|Scheme] >
+      (use-modules \ (kernel gui menu-convert))
+    </input>
+
+    <\unfolded-io|Scheme] >
+      (scm-\<gtr\>json-string (process (build-menu-widget (form3 1) 0)))
+    <|unfolded-io>
+      "{\\"tag\\":\\"canvas\\",\\"attrs\\":[\\"0px\\",\\"-500px\\",\\"500px\\",\\"0px\\",\\"0%\\",\\"0%\\",{\\"tag\\":\\"vlist\\",\\"attrs\\":[{\\"tag\\":\\"glue\\",\\"attrs\\":[\\"false\\",\\"false\\",\\"0px\\",\\"10px\\"]},{\\"tag\\":\\"hlist\\",\\"attrs\\":[{\\"tag\\":\\"glue\\",\\"attrs\\":[\\"false\\",\\"false\\",\\"25px\\",\\"0px\\"]},{\\"tag\\":\\"vlist\\",\\"attrs\\":[{\\"tag\\":\\"align-tiled\\",\\"attrs\\":[\\"2\\",{\\"tag\\":\\"inflate\\",\\"attrs\\":[{\\"tag\\":\\"text-opaque\\",\\"attrs\\":[\\"Input:\\"]}]},{\\"tag\\":\\"input-field\\",\\"attrs\\":[\\"fieldname1#form-Test-1:string\\",\\"(eval-unary-mangled
+      214 answer)\\",\\"1w\\",\\"one\\"]},{\\"tag\\":\\"glue\\",\\"attrs\\":[\\"false\\",\\"false\\",\\"0px\\",\\"5px\\"]},{\\"tag\\":\\"glue\\",\\"attrs\\":[\\"false\\",\\"false\\",\\"0px\\",\\"5px\\"]},{\\"tag\\":\\"inflate\\",\\"attrs\\":[{\\"tag\\":\\"text-opaque\\",\\"attrs\\":[\\"Enum:\\"]}]},{\\"tag\\":\\"input-list\\",\\"attrs\\":[\\"generic\\",\\"(eval-unary-mangled
+      215 answer)\\",\\"1w\\",\\"two\\",{\\"tag\\":\\"choice-list\\",\\"attrs\\":[\\"(eval-unary-mangled
+      215 answer)\\",\\"two\\",\\"one\\",\\"two\\",\\"three\\"]}]},{\\"tag\\":\\"glue\\",\\"attrs\\":[\\"false\\",\\"false\\",\\"0px\\",\\"5px\\"]},{\\"tag\\":\\"glue\\",\\"attrs\\":[\\"false\\",\\"false\\",\\"0px\\",\\"5px\\"]},{\\"tag\\":\\"inflate\\",\\"attrs\\":[{\\"tag\\":\\"text-opaque\\",\\"attrs\\":[\\"Choice:\\"]}]},{\\"tag\\":\\"choice-list\\",\\"attrs\\":[\\"(eval-unary-mangled
+      216 answer)\\",\\"one\\",\\"one\\",\\"two\\",\\"three\\"]},{\\"tag\\":\\"glue\\",\\"attrs\\":[\\"false\\",\\"false\\",\\"0px\\",\\"5px\\"]},{\\"tag\\":\\"glue\\",\\"attrs\\":[\\"false\\",\\"false\\",\\"0px\\",\\"5px\\"]},{\\"tag\\":\\"inflate\\",\\"attrs\\":[{\\"tag\\":\\"text-opaque\\",\\"attrs\\":[\\"Choices:\\"]}]},{\\"tag\\":\\"check-list\\",\\"attrs\\":[\\"(eval-unary-mangled
+      217 answer)\\",{\\"tag\\":\\"tuple\\",\\"attrs\\":[\\"one\\",\\"two\\"]},\\"one\\",\\"two\\",\\"three\\"]},{\\"tag\\":\\"glue\\",\\"attrs\\":[\\"false\\",\\"false\\",\\"0px\\",\\"5px\\"]},{\\"tag\\":\\"glue\\",\\"attrs\\":[\\"false\\",\\"false\\",\\"0px\\",\\"5px\\"]},{\\"tag\\":\\"inflate\\",\\"attrs\\":[{\\"tag\\":\\"text-opaque\\",\\"attrs\\":[\\"Password:\\"]}]},{\\"tag\\":\\"input-field\\",\\"attrs\\":[\\"fieldname5#form-Test-2:password\\",\\"(eval-unary-mangled
+      218 answer)\\",\\"1w\\",\\"\\"]},{\\"tag\\":\\"glue\\",\\"attrs\\":[\\"false\\",\\"false\\",\\"0px\\",\\"5px\\"]},{\\"tag\\":\\"glue\\",\\"attrs\\":[\\"false\\",\\"false\\",\\"0px\\",\\"5px\\"]},{\\"tag\\":\\"inflate\\",\\"attrs\\":[{\\"tag\\":\\"text-opaque\\",\\"attrs\\":[\\"Toggle:\\"]}]},{\\"tag\\":\\"toggle-button\\",\\"attrs\\":[\\"false\\",\\"(eval-unary-mangled
+      219 answer)\\"]}]},{\\"tag\\":\\"glue\\",\\"attrs\\":[\\"false\\",\\"false\\",\\"0px\\",\\"5px\\"]},{\\"tag\\":\\"hlist\\",\\"attrs\\":[{\\"tag\\":\\"glue\\",\\"attrs\\":[\\"false\\",\\"false\\",\\"5px\\",\\"0px\\"]},{\\"tag\\":\\"with-explicit-buttons\\",\\"attrs\\":[{\\"tag\\":\\"menu-button\\",\\"attrs\\":[{\\"tag\\":\\"inflate\\",\\"attrs\\":[{\\"tag\\":\\"inflate\\",\\"attrs\\":[\\"Cancel\\"]}]},\\"(eval-nullary-mangled
+      220)\\"]}]},{\\"tag\\":\\"glue\\",\\"attrs\\":[\\"true\\",\\"false\\",\\"5px\\",\\"0px\\"]},{\\"tag\\":\\"with-explicit-buttons\\",\\"attrs\\":[{\\"tag\\":\\"menu-button\\",\\"attrs\\":[{\\"tag\\":\\"inflate\\",\\"attrs\\":[{\\"tag\\":\\"inflate\\",\\"attrs\\":[\\"Ok\\"]}]},\\"(eval-nullary-mangled
+      221)\\"]}]},{\\"tag\\":\\"glue\\",\\"attrs\\":[\\"false\\",\\"false\\",\\"5px\\",\\"0px\\"]}]},{\\"tag\\":\\"glue\\",\\"attrs\\":[\\"false\\",\\"false\\",\\"0px\\",\\"5px\\"]}]},{\\"tag\\":\\"glue\\",\\"attrs\\":[\\"false\\",\\"false\\",\\"25px\\",\\"0px\\"]}]},{\\"tag\\":\\"glue\\",\\"attrs\\":[\\"false\\",\\"false\\",\\"0px\\",\\"10px\\"]}]}]}"
+    </unfolded-io>
+
+    <\input|Scheme] >
+      (show-form form3)
+    </input>
+
+    <\unfolded-io|Scheme] >
+      (form3 1)
+    <|unfolded-io>
+      ((resize #\<less\>procedure #f ()\<gtr\> #\<less\>procedure #f
+      ()\<gtr\> (vlist (glue #f #f 0 10) (hlist (glue #f #f 25 0) (vlist
+      (aligned (aligned-item (text "Input:") (input #\<less\>procedure #f
+      (answer)\<gtr\> "fieldname1#form-Test-1:string" #\<less\>procedure #f
+      ()\<gtr\> "1w")) (aligned-item (glue #f #f 0 5) (glue #f #f 0 5))
+      (aligned-item (text "Enum:") (enum #\<less\>procedure #f
+      (answer)\<gtr\> #\<less\>procedure #f ()\<gtr\> #\<less\>procedure #f
+      ()\<gtr\> "1w")) (aligned-item (glue #f #f 0 5) (glue #f #f 0 5))
+      (aligned-item (text "Choice:") (choice #\<less\>procedure #f
+      (answer)\<gtr\> #\<less\>procedure #f ()\<gtr\> #\<less\>procedure #f
+      ()\<gtr\>)) (aligned-item (glue #f #f 0 5) (glue #f #f 0 5))
+      (aligned-item (text "Choices:") (choices #\<less\>procedure #f
+      (answer)\<gtr\> #\<less\>procedure #f ()\<gtr\> #\<less\>procedure #f
+      ()\<gtr\>)) (aligned-item (glue #f #f 0 5) (glue #f #f 0 5))
+      (aligned-item (text "Password:") (input #\<less\>procedure #f
+      (answer)\<gtr\> "fieldname5#form-Test-2:password" #\<less\>procedure #f
+      ()\<gtr\> "1w")) (aligned-item (glue #f #f 0 5) (glue #f #f 0 5))
+      (aligned-item (text "Toggle:") (toggle #\<less\>procedure #f
+      (answer)\<gtr\> #\<less\>procedure #f ()\<gtr\>))) (vlist --- (glue #f
+      #f 0 5) (hlist (glue #f #f 5 0) (style 32 ("Cancel" #\<less\>procedure
+      #f ()\<gtr\>) (glue #t #f 5 0) ("Ok" #\<less\>procedure #f ()\<gtr\>))
+      (glue #f #f 5 0)) (glue #f #f 0 5))) (glue #f #f 25 0)) (glue #f #f 0
+      10))))
+    </unfolded-io>
 
     <\input|Scheme] >
       \;

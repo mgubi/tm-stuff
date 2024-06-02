@@ -421,7 +421,6 @@ class TileComponent extends StyledComponent {
     }
 }
 
-
 class MenuItem extends Component {
     init (title, props = {}) {
         this.title = props.tooltip ? new Tooltip(title, props.tooltip) : title;
@@ -439,7 +438,7 @@ class MenuItem extends Component {
        if (this.command) el.events["click"] =  [ this.handleClick ];
        if (this.greyed) el.attrs.class = [ "greyed" ]; 
        return el;
-   }
+    }
 
     handleClick(e) {
         // run the command
@@ -578,6 +577,7 @@ class App extends StyledComponent {
             align-items: center;
             justify-content: space-between;
         }
+
         .mainmenu {
             display: flex;
             flex-direction: row;
@@ -607,6 +607,7 @@ class App extends StyledComponent {
                 font-weight: bold;
             }
         }
+
         .renderContainer {
             display: flex;
             flex-direction: row;
@@ -620,6 +621,7 @@ class App extends StyledComponent {
             overflow: scroll clip;
             gap: 15px;
         }
+        
         .panel {
             box-sizing: border-box;
             border: 0;

@@ -1618,9 +1618,9 @@
       book>>>>|(eval-nullary-mangled 3920)>>|Right|top>>|left|Bottom>>>
     </unfolded-io>
 
-    <\unfolded-io|Scheme] >
+    <\folded-io|Scheme] >
       (build-menu-widget `((vertical (link file-menu))) 0)
-    <|unfolded-io>
+    <|folded-io>
       (vlist (menu-button (inflate (inflate "New")) "(eval-nullary-mangled
       14858)") (menu-button (inflate (inflate "Load")) "(eval-nullary-mangled
       14859)") (menu-button (inflate (inflate "Revert"))
@@ -1752,11 +1752,11 @@
       14917)")) "left" "Bottom")) "Right" "top") (menu-button (inflate
       (inflate "Close window")) "(eval-nullary-mangled 14918)") (menu-button
       (inflate (inflate "Close TeXmacs")) "(eval-nullary-mangled 14919)"))
-    </unfolded-io>
+    </folded-io>
 
-    <\unfolded-io|Scheme] >
+    <\folded-io|Scheme] >
       ( (build-menu-widget `((vertical (link file-menu))) 0)
-    <|unfolded-io>
+    <|folded-io>
       (vlist (menu-button (inflate (inflate "New")) "(eval-nullary-mangled
       14734)") (menu-button (inflate (inflate "Load")) "(eval-nullary-mangled
       14735)") (menu-button (inflate (inflate "Revert"))
@@ -1888,7 +1888,7 @@
       14793)")) "left" "Bottom")) "Right" "top") (menu-button (inflate
       (inflate "Close window")) "(eval-nullary-mangled 14794)") (menu-button
       (inflate (inflate "Close TeXmacs")) "(eval-nullary-mangled 14795)"))
-    </unfolded-io>
+    </folded-io>
 
     <\unfolded-io|Scheme] >
       (widget1)
@@ -1926,11 +1926,11 @@
       ()\<gtr\>)) ("Close TeXmacs" #\<less\>procedure #f ()\<gtr\>))
     </unfolded-io>
 
-    <\unfolded-io|Scheme] >
+    <\folded-io|Scheme] >
       (menu-dynamic (file-menu))
-    <|unfolded-io>
+    <|folded-io>
       <errput|invalid menu item (file-menu)>
-    </unfolded-io>
+    </folded-io>
 
     <\unfolded-io|Scheme] >
       (widget1)
@@ -1950,43 +1950,61 @@
       ()\<gtr\>))
     </unfolded-io>
 
-    <\unfolded-io|Scheme] >
-      (show (recent-file-menu))
-    <|unfolded-io>
-      <errput|Wrong type to apply: ((for #\<procedure #f (name)\>
-      #\<procedure #f ()\>))>
-    </unfolded-io>
-
-    <\unfolded-io|Scheme] >
-      (build-menu-widget (file-menu) 0)
-    <|unfolded-io>
-      (inflate "Error")
-    </unfolded-io>
-
     <\input|Scheme] >
-      \;
+      (show (lambda () `(horizontal (link texmacs-menu))))
     </input>
 
     <\unfolded-io|Scheme] >
-      (file-menu)
+      (build-menu-widget '(link widget2) 0)
     <|unfolded-io>
-      (("New" #\<less\>procedure #f ()\<gtr\>) ("Load" #\<less\>procedure #f
-      ()\<gtr\>) ("Revert" #\<less\>procedure #f ()\<gtr\>) (-\<gtr\>
-      "Recent" (link recent-file-menu) (if #\<less\>procedure #f ()\<gtr\>
-      ---) (when #\<less\>procedure #f ()\<gtr\> ("Clear menu"
-      #\<less\>procedure #f ()\<gtr\>))) --- ("Save" #\<less\>procedure #f
-      ()\<gtr\>) ("Save as" #\<less\>procedure #f ()\<gtr\>) --- (link
-      print-menu) --- (-\<gtr\> "Import" (link import-import-menu) --- ("Pdf
-      with embedded document" #\<less\>procedure #f ()\<gtr\>)) (-\<gtr\>
-      "Export" (link export-export-menu) --- ("Pdf" #\<less\>procedure #f
-      ()\<gtr\>) ("Pdf with embedded document" #\<less\>procedure #f
-      ()\<gtr\>) ("Postscript" #\<less\>procedure #f ()\<gtr\>) (when
-      #\<less\>procedure #f ()\<gtr\> (=\<gtr\> "Export selection as image"
-      (link export-as-image-menu)))) --- (if #\<less\>procedure #f ()\<gtr\>
-      ("Close window" #\<less\>procedure #f ()\<gtr\>)) (if
-      #\<less\>procedure #f ()\<gtr\> ("Close document" #\<less\>procedure #f
-      ()\<gtr\>)) ("Close TeXmacs" #\<less\>procedure #f ()\<gtr\>))
+      (tabs (tabs-bar (active-tab (inflate (text-opaque "General")))
+      (passive-tab (inflate (text-opaque "Extra"))) (passive-tab (inflate
+      (text-opaque "Settings")))) (tabs-body (shown (vlist (glue "false"
+      "false" "0px" "10px") (hlist (glue "true" "false" "25px" "0px")
+      (align-tiled "2" (inflate (text-opaque "First:")) (toggle-button
+      "false" "(eval-unary-mangled 187 answer)") (inflate (text-opaque
+      "Second:")) (toggle-button "false" "(eval-unary-mangled 188 answer)"))
+      (glue "true" "false" "25px" "0px")) (glue "false" "false" "0px"
+      "10px"))) (hidden (vlist (glue "false" "false" "0px" "10px") (hlist
+      (glue "true" "false" "25px" "0px") (align-tiled "2" (inflate
+      (text-opaque "First:")) (toggle-button "false" "(eval-unary-mangled 189
+      answer)") (inflate (text-opaque "Second:")) (toggle-button "false"
+      "(eval-unary-mangled 190 answer)")) (glue "true" "false" "25px" "0px"))
+      (glue "false" "false" "0px" "10px") (glue "false" "false" "0px" "5px")
+      (hlist (glue "false" "false" "5px" "0px") (with-explicit-buttons
+      (menu-button (inflate (inflate "Cancel")) "(eval-nullary-mangled
+      191)")) (glue "true" "false" "5px" "0px") (with-explicit-buttons
+      (menu-button (inflate (inflate "Ok")) "(eval-nullary-mangled 192)"))
+      (glue "false" "false" "5px" "0px")) (glue "false" "false" "0px"
+      "5px"))) (hidden (vlist (glue "false" "false" "0px" "10px") (hlist
+      (glue "true" "false" "25px" "0px") (align-tiled "2" (inflate
+      (text-opaque "First:")) (input-list "generic" "(eval-unary-mangled 193
+      answer)" "10em" "zebra" (choice-list "(eval-unary-mangled 193 answer)"
+      "zebra" "gnu" "gnat" "zebra")) (inflate (text-opaque "Second:"))
+      (input-list "generic" "(eval-unary-mangled 194 answer)" "10em" "fun"
+      (choice-list "(eval-unary-mangled 194 answer)" "fun" "fun" "foo"
+      "bar"))) (glue "true" "false" "25px" "0px")) (glue "false" "false"
+      "0px" "10px") (glue "false" "false" "0px" "5px") (hlist (glue "false"
+      "false" "5px" "0px") (glue "true" "false" "5px" "0px")
+      (with-explicit-buttons (menu-button (inflate (inflate "Ok"))
+      "(eval-nullary-mangled 195)")) (glue "false" "false" "5px" "0px"))
+      (glue "false" "false" "0px" "5px")))))
     </unfolded-io>
+
+    <\unfolded-io|Scheme] >
+      (widget1)
+    <|unfolded-io>
+      ((vlist (glue #f #f 0 10) (hlist (glue #t #f 25 0) (vlist (aligned
+      (aligned-item (text "First:") (toggle #\<less\>procedure #f
+      (answer)\<gtr\> #\<less\>procedure #f ()\<gtr\>)) (aligned-item (text
+      "Second:") (toggle #\<less\>procedure #f (answer)\<gtr\>
+      #\<less\>procedure #f ()\<gtr\>)))) (glue #t #f 25 0)) (glue #f #f 0
+      10)))
+    </unfolded-io>
+
+    <\input|Scheme] >
+      (show widget1)
+    </input>
 
     <\input|Scheme] >
       (top-window (lambda () "pippo") "pluto")
