@@ -100,6 +100,136 @@ const makeMenu = (desc, props = {}) => {
     return new MenuItem("DEFAULT", props);
 };
 
+const uniqueID = (() => {
+    let id = 0;
+    return () => {
+        return id++;
+    }
+})();
+
+const makeTable = (cols, tiles) => {
+    tiles = [ ...tiles ]; // make a copy to splice
+    let t = [];
+    while (tiles.length) t.push(tiles.splice(0, cols));
+    console.log(t);
+    let x = jdom`<div class="table">
+        ${t.map( row => jdom`<div class="row"> 
+            ${row.map (el => jdom`<div class="cell">${ makeWidget(el) }</div>`)}
+            </div>` )} 
+        </div>`;
+    return x;
+}
+
+//> Convert the JSON encoding of a TeXmacs menu into JDOM (functional version)
+const makeWidget = (desc, props = {}) => {
+
+    if (typeof desc == "string") 
+        return jdom`<div>${fromTeXmacsEncoding(desc)}</div>`;
+
+    switch (desc.tag) {
+        case "hlist" :
+        case "vlist" :  {
+            let v = desc.attrs.map( el => makeWidget(el) );
+            v = v.map( el => jdom`<li>${el}</li>`);
+            return jdom`<ul class="${desc.tag}">${v}</ul>`;
+        }
+        case "help-balloon" : 
+            props.tooltip =  makeWidget(desc.attrs[1]);
+            return makeWidget(desc.attrs[0], props);
+        case "glue" : //FIXME: handle the other parameters
+            return jdom`<div class="glue" style="width:${desc.attrs[2]}; height:${desc.attrs[3]};"></div>`
+        case "text-opaque" :
+            return jdom`<div>${fromTeXmacsEncoding(desc.attrs[0])}</div>`;
+        case "inflate" :
+            return makeWidget(desc.attrs[0], props);
+        case "toggle-button" : {
+            // chain commands to previous (if present)
+            // FIXME: can it really happen to have more than one?
+            let prevCommand = props.command;
+            let command = (answer) => {
+                console.log(desc.attrs[1]);
+                prevCommand?.apply(); 
+            };
+            let buttonState = (desc.attrs[0] == 'true');
+            let myId = uniqueID();
+            let clickClosure = () => {
+                buttonState = !buttonState;
+                let tb= document.getElementById(`toggle-button-${myId}`);
+                console.log(tb.checked);
+                command(buttonState);
+            };
+            clickClosure.bind(this);
+            return jdom`<input type="checkbox" id="toggle-button-${myId}" onclick="${clickClosure}" value="${buttonState}"></input>`;
+        }
+        case "align-tiled" : {
+            return makeTable(desc.attrs[0], desc.attrs.slice(1));
+        }
+        case "greyed" : 
+            props.greyed = true;
+            return makeWidget(desc.attrs[0], props);
+        case "with-explicit-buttons" :
+            props.withExplicitButtons = true;
+            return makeWidget(desc.attrs[0], props);
+        default :
+    }
+    console.log(`Unhandled widget::`);
+    console.log(desc);
+    return makeWidget("UNHANDLED", props);
+};
+
+class Widget extends StyledComponent {
+    init (desc) {
+        this.desc = desc;
+    }
+
+    compose () {
+        let r =  makeWidget(this.desc);
+        console.log(r);
+        return jdom`<div class="widget">${r}</div>`;
+    }
+
+    styles() {
+        return css`
+            div, li {
+                margin: 0 0;
+                padding: 0 0;
+            }
+            .table {
+                margin: 0;
+                padding: 0;
+                display: flex;
+                flex-flow: column nowrap;
+                & .row {
+                    display: flex;
+                }
+                & .cell {
+                    display: flex;
+                    flex: 1; 
+                    justify-content: center;
+                    align-items: center;
+                }    
+            }
+            ul {
+                margin: 0;
+                padding: 0;    
+                list-style: none;
+                li {
+                    margin: 0 0;
+                    padding: 0 0;    
+                }
+            }
+            .hlist {
+                display: flex;
+                flex-flow: row nowrap;
+            }
+            .vlist {
+                display: block;
+            }
+        `;
+    }
+
+}
+
 class Panel extends StyledComponent {
     init () {
         this.width = 600;
@@ -222,7 +352,7 @@ class Dropdown extends StyledComponent {
         this.target = target;
         this.direction = x_dir + '-' + y_dir;
         this.menupromise = menupromise;
-        this.menu = undefined;
+        this.menu = null;
 
         this.toggle = this.toggle.bind(this);
         this.checkDeactivate = this.checkDeactivate.bind(this);
@@ -282,7 +412,6 @@ class Dropdown extends StyledComponent {
 
     compose() {
         if (this.active) {
-            this.menu ||= this.menupromise();
             return jdom`<span class="dropdown-container active"> 
                         <span class="dropdown-target"  onpointerdown="${this.toggle}">${this.target.node}</span>  
                         <span class="dropdown-panel direction-${this.direction}">${this.menu.node}</span>
@@ -310,14 +439,19 @@ class Dropdown extends StyledComponent {
             // destroy the menu when deactivating
             // FIXME: check if this really destroys the menu
             this.menu.remove();
-            this.menu = undefined;
+            this.menu = null;
             this.node.removeEventListener("menu-deactivate", this.toggle);
             document.body.removeEventListener("pointerdown", this.checkDeactivate, true);
         } else {
+            // reevaluate the menu when we become active
+            // FIXME: should we cache or not?
+            this.menu = this.menupromise();
+            console.log(this.menu);
             this.node.addEventListener("menu-deactivate", this.toggle);
             document.body.addEventListener("pointerdown", this.checkDeactivate, true);
         }
         this.active = !this.active;
+        // force re-rendering
         this.render();
     }
 }
@@ -544,7 +678,8 @@ class App extends StyledComponent {
             new MenuItem("Edit"), 
             new Dropdown(new MenuItem("Dropdown"), recursiveMenu),
             new Dropdown(new MenuItem("Menubar"),  () =>  makeMenu(menubar) ), 
-            new Dropdown(new MenuItem("Mainmenu"),  () =>  makeMenu(mainmenu) ) 
+            new Dropdown(new MenuItem("Mainmenu"),  () =>  makeMenu(mainmenu) ), 
+            new Dropdown(new MenuItem("Widget"),  () =>  new Widget(widget1) ) 
         );
     }
 
