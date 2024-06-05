@@ -120,6 +120,15 @@ const makeTable = (cols, tiles) => {
     return x;
 }
 
+const makeTile = (cols, tiles) => {
+    let t = [ ...tiles ]; // make a copy 
+    console.log(t);
+    let x = jdom`<div class="tile" style="width:100%;grid-template-columns:${"auto ".repeat(cols)};">
+        ${t.map( el => jdom`<div class="cell">${ makeWidget(el) }</div>`)}
+        </div>`;
+    return x;
+}
+
 //> Convert the JSON encoding of a TeXmacs menu into JDOM (functional version)
 const makeWidget = (desc, props = {}) => {
 
@@ -155,14 +164,14 @@ const makeWidget = (desc, props = {}) => {
             let clickClosure = () => {
                 buttonState = !buttonState;
                 let tb= document.getElementById(`toggle-button-${myId}`);
-                console.log(tb.checked);
+                console.log(`toggle-button-${myId} -> ${tb.checked}`);
                 command(buttonState);
             };
             clickClosure.bind(this);
             return jdom`<input type="checkbox" id="toggle-button-${myId}" onclick="${clickClosure}" value="${buttonState}"></input>`;
         }
         case "align-tiled" : {
-            return makeTable(desc.attrs[0], desc.attrs.slice(1));
+            return makeTile(desc.attrs[0], desc.attrs.slice(1));
         }
         case "greyed" : 
             props.greyed = true;
@@ -194,17 +203,11 @@ class Widget extends StyledComponent {
                 margin: 0 0;
                 padding: 0 0;
             }
-            .table {
+            .tile {
                 margin: 0;
                 padding: 0;
-                display: flex;
-                flex-flow: column nowrap;
-                & .row {
-                    display: flex;
-                }
+                display: grid;
                 & .cell {
-                    display: flex;
-                    flex: 1; 
                     justify-content: center;
                     align-items: center;
                 }    
