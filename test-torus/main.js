@@ -139,8 +139,8 @@ const makeWidget = (desc, props = {}) => {
         case "hlist" :
         case "vlist" :  {
             let v = desc.attrs.map( el => makeWidget(el) );
-            v = v.map( el => jdom`<li>${el}</li>`);
-            return jdom`<ul class="${desc.tag}">${v}</ul>`;
+            v = v.map( el => jdom`${el}`);
+            return jdom`<div class="${desc.tag}">${v}</div>`;
         }
         case "help-balloon" : 
             props.tooltip =  makeWidget(desc.attrs[1]);
@@ -168,7 +168,9 @@ const makeWidget = (desc, props = {}) => {
                 command(buttonState);
             };
             clickClosure.bind(this);
-            return jdom`<input type="checkbox" id="toggle-button-${myId}" onclick="${clickClosure}" value="${buttonState}"></input>`;
+            return jdom`<div class="toggle-button">
+                <input type="checkbox" id="toggle-button-${myId}" onclick="${clickClosure}" value="${buttonState}">
+                </input></div>`;
         }
         case "align-tiled" : {
             return makeTile(desc.attrs[0], desc.attrs.slice(1));
@@ -199,7 +201,7 @@ class Widget extends StyledComponent {
 
     styles() {
         return css`
-            div, li {
+            div {
                 margin: 0 0;
                 padding: 0 0;
             }
@@ -212,21 +214,16 @@ class Widget extends StyledComponent {
                     align-items: center;
                 }    
             }
-            ul {
-                margin: 0;
-                padding: 0;    
-                list-style: none;
-                li {
-                    margin: 0 0;
-                    padding: 0 0;    
-                }
-            }
             .hlist {
                 display: flex;
                 flex-flow: row nowrap;
             }
             .vlist {
                 display: block;
+            }
+            .toggle-button {
+                width: 100%;
+                text-align: center;
             }
         `;
     }
