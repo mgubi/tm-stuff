@@ -5,6 +5,9 @@ for (const exportedName in Torus) {
     window[exportedName] = Torus[exportedName];
 }
 
+/******************************************************************************/
+// General utilities
+
 //> Convert from TeXmacs Unicode representations to Javascript's
 const fromTeXmacsEncoding = (str) => 
     str.replace(/<\#([A-F\d]*)>/g, 
@@ -45,6 +48,8 @@ const teXmacsColors = {
     "pastel orange":"#FFDFBF",
     "pastel brown":"#DFBFBF"
 };
+
+/******************************************************************************/
 
 //> Convert the JSON encoding of a TeXmacs menu into Torus components
 const makeMenu = (desc, props = {}) => {
@@ -99,6 +104,10 @@ const makeMenu = (desc, props = {}) => {
     console.log(desc);
     return new MenuItem("DEFAULT", props);
 };
+
+
+/******************************************************************************/
+// Construct widgets
 
 const uniqueID = (() => {
     let id = 0;
@@ -181,11 +190,65 @@ const makeWidget = (desc, props = {}) => {
         case "with-explicit-buttons" :
             props.withExplicitButtons = true;
             return makeWidget(desc.attrs[0], props);
+        case "tabs" : {
+            // tabs bar
+            let myId = uniqueID();
+            let currentTab = 0;
+            let clickClosure = (id, n) => {
+                let x = document.getElementById(`tabs-body-tab-${myId}-${currentTab}`);
+                x.style.display = "none";
+                x = document.getElementById(`tabs-body-tab-${myId}-${n}`);
+                x.style.display = "block";
+                x = document.getElementById(`tabs-bar-tab-${myId}-${currentTab}`);
+                x.classList.remove ("active");
+                x = document.getElementById(`tabs-bar-tab-${myId}-${n}`);
+                x.classList.add ("active");
+                currentTab = n;
+            };
+            let v = desc.attrs[0].attrs;
+            let bar = jdom`<div class="tabs-bar">
+                        ${v.map( (el, i) => {
+                            return jdom`<div class="tabs-bar-tab ${ (i == 0) ? "active" : ""}" id="tabs-bar-tab-${myId}-${i}" tabNumber="${i}"
+                                             onclick="${clickClosure.bind(this, myId, i)}">
+                                        ${ makeWidget(el.attrs[0]) }
+                                         </div>`;
+                        })}
+                        </div>`;
+            let w = desc.attrs[1].attrs;
+            let body = jdom`<div class="tabs-body">
+                        ${w.map( (el, i) => {
+                            console.log(el);
+                            return jdom`<div class="tabs-body-tab" id="tabs-body-tab-${myId}-${i}"
+                                             style="display:${ (el.tag == "shown") ? "block" : "none" }">
+                                        ${ makeWidget(el.attrs[0]) }
+                                         </div>`;
+                        })}
+                        </div>`;
+
+            return jdom`<div class="tabs">
+                        ${ bar }
+                        ${ body }
+                        </div>`;
+        }
+        case "tabs-bar" : 
+        case "tabs-body" : {
+            console.log(`ERROR: tabs-bar/body out of context`);
+            console.log(desc);
+            return makeWidget("ERROR: tabs-bar/body out of context");
+        }
+        case "menu-button" : {
+            // FIXME:
+            return makeWidget(desc.attrs[0]);
+        }
+        case "input-list" : {
+            // FIXME:
+            return makeWidget(desc.attrs[3]);
+        }
         default :
     }
     console.log(`Unhandled widget::`);
     console.log(desc);
-    return makeWidget("UNHANDLED", props);
+    return makeWidget("Unhandled", props);
 };
 
 class Widget extends StyledComponent {
@@ -225,10 +288,33 @@ class Widget extends StyledComponent {
                 width: 100%;
                 text-align: center;
             }
+            .tabs {
+                display: block;
+            }
+            .tabs-bar {
+                display: flex;
+                flex-flow: row nowrap;
+                gap: 20px;
+            }
+            .tabs-bar-tab {
+                .active {
+                    background-color: #3ff;
+                }
+            }   
+            .tabs-body {
+                position: relative;
+            }
+            .tabs-bdy-tab {
+                position:absolute;
+                top: 0%;
+                left: 0%;
+            }
         `;
     }
 
 }
+
+/******************************************************************************/
 
 class Panel extends StyledComponent {
     init () {
@@ -276,6 +362,8 @@ class Panel extends StyledComponent {
         evt.target.releasePointerCapture(evt.pointerId);
     }
 }
+
+/******************************************************************************/
 
 class PopupButton extends StyledComponent {
     init () {
@@ -679,7 +767,7 @@ class App extends StyledComponent {
             new Dropdown(new MenuItem("Dropdown"), recursiveMenu),
             new Dropdown(new MenuItem("Menubar"),  () =>  makeMenu(menubar) ), 
             new Dropdown(new MenuItem("Mainmenu"),  () =>  makeMenu(mainmenu) ), 
-            new Dropdown(new MenuItem("Widget"),  () =>  new Widget(widget1) ) 
+            new Dropdown(new MenuItem("Widget"),  () =>  new Widget(widget2) ) 
         );
     }
 
