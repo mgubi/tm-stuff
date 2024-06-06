@@ -130,8 +130,7 @@ const makeTable = (cols, tiles) => {
 }
 
 const makeTile = (cols, tiles) => {
-    let t = [ ...tiles ]; // make a copy 
-    console.log(t);
+    let t = [ ...tiles ]; // make a copy (FIXME: maybe not needed anymore)
     let x = jdom`<div class="tile" style="width:100%;grid-template-columns:${"auto ".repeat(cols)};">
         ${t.map( el => jdom`<div class="cell">${ makeWidget(el) }</div>`)}
         </div>`;
@@ -148,7 +147,7 @@ const makeWidget = (desc, props = {}) => {
         case "hlist" :
         case "vlist" :  {
             let v = desc.attrs.map( el => makeWidget(el) );
-            v = v.map( el => jdom`${el}`);
+            //v = v.map( el => jdom`${el}`);
             return jdom`<div class="${desc.tag}">${v}</div>`;
         }
         case "help-balloon" : 
@@ -219,7 +218,6 @@ const makeWidget = (desc, props = {}) => {
             let w = desc.attrs[1].attrs;
             let body = jdom`<div class="tabs-body">
                         ${w.map( (el, i) => {
-                            console.log(el);
                             return jdom`<div class="tabs-body-tab" id="tabs-body-tab-${myId}-${i}"
                                              style="display:${ (el.tag == "shown") ? "block" : "none" }">
                                         ${ makeWidget(el.attrs[0]) }
@@ -239,12 +237,46 @@ const makeWidget = (desc, props = {}) => {
             return makeWidget("ERROR: tabs-bar/body out of context");
         }
         case "menu-button" : {
-            // FIXME:
-            return makeWidget(desc.attrs[0]);
+            let command = desc.attrs[1];
+            let clickClosure = (e) => {
+                console.log(command);
+                //FIXME: must also close the widget?
+            };
+            return jdom`<div class="menu-button" onclick="${clickClosure}"> 
+                        ${makeWidget(desc.attrs[0])}
+                        </div>`;
         }
         case "input-list" : {
             // FIXME:
-            return makeWidget(desc.attrs[3]);
+            let myId = uniqueID();
+            let type = desc.attrs[0];
+            let command = desc.attrs[1];
+            let listHeight = desc.attrs[2];
+            let defaultValue = desc.attrs[3];
+            let list = desc.attrs[4].attrs.slice(1);
+            if (desc.attrs[4].tag != "choice-list") {
+                console.log("Error in input-list");
+                return makeWidget("Error in input-list");
+            }
+            let clickClosure = (e) => {
+                console.log(command);
+                //FIXME: must also close the widget?
+            };
+            // I need to go aroung a possible bug in torus
+            // which discards the 'list' attribute
+            let y = document.createElement('input');
+            y.setAttribute('name', `input-list-${myId}`);
+            y.setAttribute('list', `input-list-${myId}`);
+            y.setAttribute('onclick', clickClosure);
+            let x = jdom`<div>
+                        ${y}
+                        <datalist id="input-list-${myId}"> 
+                        ${ list.map( el => {
+                            return jdom`<option value="${el}"></option>`;
+                        })}
+                        </datalist></div>
+                        `;
+            return x;
         }
         default :
     }
@@ -260,7 +292,6 @@ class Widget extends StyledComponent {
 
     compose () {
         let r =  makeWidget(this.desc);
-        console.log(r);
         return jdom`<div class="widget">${r}</div>`;
     }
 
@@ -274,6 +305,8 @@ class Widget extends StyledComponent {
                 margin: 0;
                 padding: 0;
                 display: grid;
+                grid-row-gap: 5px;
+                grid-column-gap: 5px;
                 & .cell {
                     justify-content: center;
                     align-items: center;
@@ -282,9 +315,11 @@ class Widget extends StyledComponent {
             .hlist {
                 display: flex;
                 flex-flow: row nowrap;
+                gap: 5px;
             }
             .vlist {
-                display: block;
+                display: flex;
+                flex-flow: column nowrap;
             }
             .toggle-button {
                 width: 100%;
@@ -311,6 +346,16 @@ class Widget extends StyledComponent {
             }  
             .tabs-body {
                 border-top: solid 0px #555;
+            }
+            .menu-button {
+                border-radius: 6px;
+                background-color: #888;
+                color: white;
+                padding: 2px 10px;
+
+            }
+            :active.menu-button {
+                background-color: #444;
             }
         `;
     }
@@ -537,7 +582,6 @@ class Dropdown extends StyledComponent {
             // reevaluate the menu when we become active
             // FIXME: should we cache or not?
             this.menu = this.menupromise();
-            console.log(this.menu);
             this.node.addEventListener("menu-deactivate", this.toggle);
             document.body.addEventListener("pointerdown", this.checkDeactivate, true);
         }
