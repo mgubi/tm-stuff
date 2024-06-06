@@ -200,15 +200,17 @@ const makeWidget = (desc, props = {}) => {
                 x = document.getElementById(`tabs-body-tab-${myId}-${n}`);
                 x.style.display = "block";
                 x = document.getElementById(`tabs-bar-tab-${myId}-${currentTab}`);
-                x.classList.remove ("active");
+                x.classList.remove ("tab-active");
                 x = document.getElementById(`tabs-bar-tab-${myId}-${n}`);
-                x.classList.add ("active");
+                x.classList.add ("tab-active");
                 currentTab = n;
             };
             let v = desc.attrs[0].attrs;
             let bar = jdom`<div class="tabs-bar">
                         ${v.map( (el, i) => {
-                            return jdom`<div class="tabs-bar-tab ${ (i == 0) ? "active" : ""}" id="tabs-bar-tab-${myId}-${i}" tabNumber="${i}"
+                            return jdom`<div class="tabs-bar-tab ${ (i == 0) ? "tab-active" : ""}" 
+                                             id="tabs-bar-tab-${myId}-${i}" 
+                                             tabNumber="${i}"
                                              onclick="${clickClosure.bind(this, myId, i)}">
                                         ${ makeWidget(el.attrs[0]) }
                                          </div>`;
@@ -294,20 +296,21 @@ class Widget extends StyledComponent {
             .tabs-bar {
                 display: flex;
                 flex-flow: row nowrap;
-                gap: 20px;
+                gap: 0px;
+                justify-content: center;
+                padding-top: 5px;
+                background-color: #999;
             }
             .tabs-bar-tab {
-                .active {
-                    background-color: #3ff;
-                }
-            }   
-            .tabs-body {
-                position: relative;
+                padding: 5px 10px;
+                color: #eee;
             }
-            .tabs-bdy-tab {
-                position:absolute;
-                top: 0%;
-                left: 0%;
+            .tab-active {
+                color: black;
+                background-color: #fefefe;
+            }  
+            .tabs-body {
+                border-top: solid 0px #555;
             }
         `;
     }
