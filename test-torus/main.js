@@ -50,63 +50,6 @@ const teXmacsColors = {
 };
 
 /******************************************************************************/
-
-//> Convert the JSON encoding of a TeXmacs menu into Torus components
-const makeMenu = (desc, props = {}) => {
-
-    if (typeof desc == "string") 
-        return new MenuItem(fromTeXmacsEncoding(desc), props);
-
-    switch (desc.tag) {
-        case "hlist" : {
-            let v = desc.attrs.map( el => makeMenu(el) );
-            return new MenuBar (...v);
-        }
-        case "vlist" : {
-            let v = desc.attrs.map( el => makeMenu(el) );
-            return new Menu (...v);
-        }
-        case "help-balloon" : 
-            props.tooltip =  makeMenu(desc.attrs[1]);
-            return makeMenu(desc.attrs[0], props);
-        case "menu-button" :
-            let prevCommand = props.command;
-            props.command = () => {
-                console.log(desc.attrs[1]);
-                prevCommand?.apply(); };
-            return makeMenu(desc.attrs[0], props); 
-        case "popup-balloon" :
-            return new Dropdown(makeMenu(desc.attrs[0], props), 
-                () => {             
-                    let m = makeMenu(desc.attrs[1]); 
-                    return m; }, 
-                desc.attrs[2].toLowerCase(), 
-                desc.attrs[3].toLowerCase());
-        case "inflate" :
-            return makeMenu(desc.attrs[0], props);
-        case "greyed" : 
-            props.greyed = true;
-            return makeMenu(desc.attrs[0], props);
-        case "with-explicit-buttons" :
-            props.withExplicitButtons = true;
-            return makeMenu(desc.attrs[0], props);
-        case "icon" :
-            return new MenuItem(new ImageComponent(fromTeXmacsEncoding(desc.attrs[0])), props);
-        case "tiled" :
-            return new TileComponent(parseInt(desc.attrs[0]), desc.attrs.slice(1).map( el => makeMenu(el) ));
-        case "monochrome" :
-            let col = teXmacsColors[desc.attrs[2]];
-            if (!col) console.log(desc.attrs[2]);
-            return new MonochromeComponent( col ? col : desc.attrs[2]);
-        default :
-    }
-    console.log(`Unhandled::`);
-    console.log(desc);
-    return new MenuItem("DEFAULT", props);
-};
-
-
-/******************************************************************************/
 // Construct widgets
 
 const uniqueID = (() => {
@@ -131,7 +74,7 @@ const makeTable = (cols, tiles) => {
 
 const makeTile = (cols, tiles) => {
     let t = [ ...tiles ]; // make a copy (FIXME: maybe not needed anymore)
-    let x = jdom`<div class="tile" style="width:100%;grid-template-columns:${"auto ".repeat(cols)};">
+    let x = jdom`<div class="tile" style="width:100%; grid-template-columns:${"auto ".repeat(cols)};">
         ${t.map( el => jdom`<div class="cell">${ makeWidget(el) }</div>`)}
         </div>`;
     return x;
@@ -141,54 +84,25 @@ const makeTile = (cols, tiles) => {
 const makeWidget = (desc, props = {}) => {
 
     if (typeof desc == "string") 
-        return jdom`<div>${fromTeXmacsEncoding(desc)}</div>`;
+        return jdom`<div>${ fromTeXmacsEncoding(desc) }</div>`;
 
     switch (desc.tag) {
+
+        // layout elements
         case "hlist" :
         case "vlist" :  {
             let v = desc.attrs.map( el => makeWidget(el) );
             v = v.map( el => jdom`<div class="list-item">${el}</div>`);
             return jdom`<div class="${desc.tag}">${v}</div>`;
         }
-        case "help-balloon" : 
-            props.tooltip =  makeWidget(desc.attrs[1]);
-            return makeWidget(desc.attrs[0], props);
-        case "glue" : //FIXME: handle the other parameters
-            return jdom`<div class="glue" style="width:${desc.attrs[2]}; height:${desc.attrs[3]};"></div>`
-        case "text-opaque" :
-            return jdom`<div>${fromTeXmacsEncoding(desc.attrs[0])}</div>`;
-        case "inflate" :
-            return makeWidget(desc.attrs[0], props);
-        case "toggle-button" : {
-            // chain commands to previous (if present)
-            // FIXME: can it really happen to have more than one?
-            let prevCommand = props.command;
-            let command = (answer) => {
-                console.log(desc.attrs[1]);
-                prevCommand?.apply(); 
-            };
-            let buttonState = (desc.attrs[0] == 'true');
-            let myId = uniqueID();
-            let clickClosure = () => {
-                buttonState = !buttonState;
-                let tb= document.getElementById(`toggle-button-${myId}`);
-                console.log(`toggle-button-${myId} -> ${tb.checked}`);
-                command(buttonState);
-            };
-            clickClosure.bind(this);
-            return jdom`<div class="toggle-button">
-                <input type="checkbox" id="toggle-button-${myId}" onclick="${clickClosure}" value="${buttonState}">
-                </input></div>`;
-        }
         case "align-tiled" : {
             return makeTile(desc.attrs[0], desc.attrs.slice(1));
         }
-        case "greyed" : 
-            props.greyed = true;
-            return makeWidget(desc.attrs[0], props);
-        case "with-explicit-buttons" :
-            props.explicitButtons = true;
-            return makeWidget(desc.attrs[0], props);
+
+        case "tiled" : {
+            return makeTile(desc.attrs[0], desc.attrs.slice(1));
+        }
+
         case "tabs" : {
             // tabs bar
             let myId = uniqueID();
@@ -230,12 +144,76 @@ const makeWidget = (desc, props = {}) => {
                         ${ body }
                         </div>`;
         }
+
         case "tabs-bar" : 
         case "tabs-body" : {
             console.log(`ERROR: tabs-bar/body out of context`);
             console.log(desc);
             return makeWidget("ERROR: tabs-bar/body out of context");
         }
+
+        // attribute elements
+        case "help-balloon" : 
+            props.tooltip =  makeWidget(desc.attrs[1]);
+            return makeWidget(desc.attrs[0], props);
+
+        case "text-opaque" :
+            return jdom`<div>${fromTeXmacsEncoding(desc.attrs[0])}</div>`;
+
+        case "inflate" :
+            return makeWidget(desc.attrs[0], props);
+
+        case "greyed" : 
+            props.greyed = true;
+            return makeWidget(desc.attrs[0], props);
+
+        case "with-explicit-buttons" :
+            props.explicitButtons = true;
+            return makeWidget(desc.attrs[0], props);
+
+        // terminal elements
+
+        case "glue" : {
+            //FIXME: handle the other parameters
+            return jdom`<div class="glue" style="width:${desc.attrs[2]}; height:${desc.attrs[3]};"></div>`;
+        }
+
+        case "icon" : {
+            let name = fromTeXmacsEncoding(desc.attrs[0]);
+            return jdom`<img src="${"./assets/images/" + name}" style="width: 20px;" alt="Image ${name}"">`;
+        }
+    
+        case "monochrome" : {
+            let col = teXmacsColors[desc.attrs[2]];
+            if (!col) {
+                col = desc.attrs[2];
+                console.log(desc.attrs[2]);
+            }
+            return jdom`<div class="monochrome" style="width: 20px; height: 20px; background-color:${col}"></div>`;
+        }
+    
+        case "toggle-button" : {
+            // chain commands to previous (if present)
+            // FIXME: can it really happen to have more than one?
+            let prevCommand = props.command;
+            let command = (answer) => {
+                console.log(desc.attrs[1]);
+                prevCommand?.apply(); 
+            };
+            let buttonState = (desc.attrs[0] == 'true');
+            let myId = uniqueID();
+            let clickClosure = () => {
+                buttonState = !buttonState;
+                let tb= document.getElementById(`toggle-button-${myId}`);
+                console.log(`toggle-button-${myId} -> ${tb.checked}`);
+                command(buttonState);
+            };
+            clickClosure.bind(this);
+            return jdom`<div class="toggle-button">
+                <input type="checkbox" id="toggle-button-${myId}" onclick="${clickClosure}" value="${buttonState}">
+                </input></div>`;
+        }
+
         case "menu-button" : {
             if (desc.attrs[1]) {
                 let prevCommand = props.command;
@@ -276,6 +254,7 @@ const makeWidget = (desc, props = {}) => {
             }
             return el;                            
         }
+
         case "input-list" : {
             // FIXME:
             let myId = uniqueID();
@@ -308,6 +287,7 @@ const makeWidget = (desc, props = {}) => {
                         `;
             return x;
         }
+
         case "popup-balloon" : {
             let label = makeWidget(desc.attrs[0], props);
             let menuPromise  =  () => {             
@@ -320,21 +300,6 @@ const makeWidget = (desc, props = {}) => {
                 desc.attrs[3].toLowerCase());
             return dd.node;
             // FIXME: is this ok? check if the MenuWidget inside is properly released
-        }
-        case "icon" : {
-            let name = fromTeXmacsEncoding(desc.attrs[0]);
-            return jdom`<img src="${"./assets/images/" + name}" style="width: 20px;" alt="Image ${name}"">`;
-        }
-        case "tiled" : {
-            return makeTile(desc.attrs[0], desc.attrs.slice(1));
-        }
-        case "monochrome" : {
-            let col = teXmacsColors[desc.attrs[2]];
-            if (!col) {
-                col = desc.attrs[2];
-                console.log(desc.attrs[2]);
-            }
-            return jdom`<div class="monochrome" style="width: 20px; height: 20px; background-color:${col}"></div>`;
         }
 
         default :
