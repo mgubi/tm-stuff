@@ -89,6 +89,7 @@ const makeWidget = (desc, props = {}) => {
     switch (desc.tag) {
 
         // layout elements
+
         case "hlist" :
         case "vlist" :  {
             let v = desc.attrs.map( el => makeWidget(el) );
@@ -153,12 +154,10 @@ const makeWidget = (desc, props = {}) => {
         }
 
         // attribute elements
+
         case "help-balloon" : 
             props.tooltip =  makeWidget(desc.attrs[1]);
             return makeWidget(desc.attrs[0], props);
-
-        case "text-opaque" :
-            return jdom`<div>${fromTeXmacsEncoding(desc.attrs[0])}</div>`;
 
         case "inflate" :
             return makeWidget(desc.attrs[0], props);
@@ -176,6 +175,10 @@ const makeWidget = (desc, props = {}) => {
         case "glue" : {
             //FIXME: handle the other parameters
             return jdom`<div class="glue" style="width:${desc.attrs[2]}; height:${desc.attrs[3]};"></div>`;
+        }
+
+        case "text-opaque" : {
+            return jdom`<div>${fromTeXmacsEncoding(desc.attrs[0])}</div>`;
         }
 
         case "icon" : {
@@ -339,24 +342,31 @@ class Widget extends StyledComponent {
             .hlist {
                 display: flex;
                 flex-flow: row nowrap;
-                gap: 5px;
-                padding: 4px 0px;
             }
             .vlist {
                 display: flex;
                 flex-flow: column nowrap;
             }
-            .list-item {
-                &:hover {
-                    background-color: #ddd;
+            &.menu-widget {
+                .hlist {
+                    gap: 5px;
+                    padding: 4px 0px;
+
+                    > .list-item {
+                        padding: 0px 5px;
+                    }
+                }
+                .vlist {
+                    > .list-item {
+                        padding: 2px 10px;
+                    }
                 }
             }
-            .vlist > .list-item {
-                            padding: 2px 10px;
-            }
-            .hlist > .list-item {
-                            padding: 0px 5px;
-            }
+            .list-item {
+                    &:hover {
+                        background-color: #ddd;
+                    }
+            }   
             .toggle-button {
                 width: 100%;
                 text-align: center;
@@ -384,13 +394,13 @@ class Widget extends StyledComponent {
                 border-top: solid 0px #555;
             }
             .menu-button {
-            }
-            .menu-button.explicit-buttons {
-                border-radius: 6px;
-                background-color: #888;
-                color: white;
-                padding: 2px 10px;
-            }
+                &.explicit-buttons {
+                    border-radius: 6px;
+                    background-color: #888;
+                    color: white;
+                    padding: 2px 10px;
+                }
+            }      
             .tooltip {
                 position: relative;
                 display: inline-block;
