@@ -147,7 +147,7 @@ const makeWidget = (desc, props = {}) => {
         case "hlist" :
         case "vlist" :  {
             let v = desc.attrs.map( el => makeWidget(el) );
-            //v = v.map( el => jdom`${el}`);
+            v = v.map( el => jdom`<div class="list-item">${el}</div>`);
             return jdom`<div class="${desc.tag}">${v}</div>`;
         }
         case "help-balloon" : 
@@ -187,7 +187,7 @@ const makeWidget = (desc, props = {}) => {
             props.greyed = true;
             return makeWidget(desc.attrs[0], props);
         case "with-explicit-buttons" :
-            props.withExplicitButtons = true;
+            props.explicitButtons = true;
             return makeWidget(desc.attrs[0], props);
         case "tabs" : {
             // tabs bar
@@ -237,14 +237,44 @@ const makeWidget = (desc, props = {}) => {
             return makeWidget("ERROR: tabs-bar/body out of context");
         }
         case "menu-button" : {
-            let command = desc.attrs[1];
-            let clickClosure = (e) => {
-                console.log(command);
-                //FIXME: must also close the widget?
-            };
-            return jdom`<div class="menu-button" onclick="${clickClosure}"> 
-                        ${makeWidget(desc.attrs[0])}
-                        </div>`;
+            if (desc.attrs[1]) {
+                let prevCommand = props.command;
+                props.command = () => {
+                    console.log(desc.attrs[1]);
+                    prevCommand?.apply(); 
+                };    
+            }
+            let label = makeWidget(desc.attrs[0])
+            if (props.tooltip) {
+                console.log(label);
+                console.log(props);
+                label = jdom`<div class="tooltip">
+                                ${label}
+                                <div class="tooltip-tip">
+                                    ${props.tooltip}
+                                </div>
+                            </div>`;
+            }
+            let el = {
+                tag: "div", 
+                attrs: { class : [ "menu-button" ]},  
+                events : {},
+                // target can be a string or a Component
+                children: [ label ]
+            } 
+            if (props.explicitButtons) el.attrs.class.push("explicit-buttons");
+            if (props.greyed) el.attrs.class.push("greyed");
+            if (props.command) {
+                let clickClosure = (e) => {
+                    // run the command
+                    props.command();
+                    // deactivate the chain of submenus in which the element resides
+                    e.target.dispatchEvent(new CustomEvent("menu-deactivate", { detail:null, bubbles:true }));
+
+                };
+                el.events["click"] =  [ clickClosure ];
+            }
+            return el;                            
         }
         case "input-list" : {
             // FIXME:
@@ -278,6 +308,35 @@ const makeWidget = (desc, props = {}) => {
                         `;
             return x;
         }
+        case "popup-balloon" : {
+            let label = makeWidget(desc.attrs[0], props);
+            let menuPromise  =  () => {             
+                let m = new MenuWidget(desc.attrs[1]); 
+                return m; 
+            }
+            let pos = desc.attrs[2].toLowerCase() + '-' + desc.attrs[3].toLowerCase();
+            let dd = new Dropdown(label, menuPromise, 
+                desc.attrs[2].toLowerCase(), 
+                desc.attrs[3].toLowerCase());
+            return dd.node;
+            // FIXME: is this ok? check if the MenuWidget inside is properly released
+        }
+        case "icon" : {
+            let name = fromTeXmacsEncoding(desc.attrs[0]);
+            return jdom`<img src="${"./assets/images/" + name}" style="width: 20px;" alt="Image ${name}"">`;
+        }
+        case "tiled" : {
+            return makeTile(desc.attrs[0], desc.attrs.slice(1));
+        }
+        case "monochrome" : {
+            let col = teXmacsColors[desc.attrs[2]];
+            if (!col) {
+                col = desc.attrs[2];
+                console.log(desc.attrs[2]);
+            }
+            return jdom`<div class="monochrome" style="width: 20px; height: 20px; background-color:${col}"></div>`;
+        }
+
         default :
     }
     console.log(`Unhandled widget::`);
@@ -316,10 +375,22 @@ class Widget extends StyledComponent {
                 display: flex;
                 flex-flow: row nowrap;
                 gap: 5px;
+                padding: 4px 0px;
             }
             .vlist {
                 display: flex;
                 flex-flow: column nowrap;
+            }
+            .list-item {
+                &:hover {
+                    background-color: #ddd;
+                }
+            }
+            .vlist > .list-item {
+                            padding: 2px 10px;
+            }
+            .hlist > .list-item {
+                            padding: 0px 5px;
             }
             .toggle-button {
                 width: 100%;
@@ -348,17 +419,60 @@ class Widget extends StyledComponent {
                 border-top: solid 0px #555;
             }
             .menu-button {
+            }
+            .menu-button.explicit-buttons {
                 border-radius: 6px;
                 background-color: #888;
                 color: white;
                 padding: 2px 10px;
-
             }
-            :active.menu-button {
-                background-color: #444;
+            .tooltip {
+                position: relative;
+                display: inline-block;
+                border-bottom: 1px dotted black; /* If you want dots under the hoverable text */
+
+                /* Tooltip text */
+                & .tooltip-tip {
+                    visibility: hidden;
+                    background-color: black;
+                    color: #ddd;
+                    text-align: center;
+                    padding: 5px 5px;
+                    border-radius: 6px;
+
+                    opacity: 0;
+                    transition: opacity 0s linear 0s;
+
+                    /* Position the tooltip text - see examples below! */
+                    position: absolute;
+                    left: 100%;
+                    z-index: 2;
+
+                    max-width: 400px;
+                    min-width: 100px;
+                }
+
+                /* Show the tooltip text when you mouse over the tooltip container */
+                &:hover > div.tooltip-tip {
+                    visibility: visible;
+                    opacity: 1;
+                    transition: opacity 0.25s linear 1.5s;
+                }
             }
         `;
     }
+}
+
+class MenuWidget extends Widget {
+    init (desc) {
+        this.desc = desc;
+    }
+
+    compose () {
+        let r =  makeWidget(this.desc);
+        return jdom`<div class="menu-widget">${r}</div>`;
+    }
+
 
 }
 
@@ -549,19 +663,19 @@ class Dropdown extends StyledComponent {
     compose() {
         if (this.active) {
             return jdom`<span class="dropdown-container active"> 
-                        <span class="dropdown-target"  onpointerdown="${this.toggle}">${this.target.node}</span>  
+                        <span class="dropdown-target"  onpointerdown="${this.toggle}">${this.target.node || this.target}</span>  
                         <span class="dropdown-panel direction-${this.direction}">${this.menu.node}</span>
                         </span>`;
         } else {
             return jdom`<span class="dropdown-container"> 
-                        <span class="dropdown-target"  onpointerdown="${this.toggle}">${this.target.node}</span>
+                        <span class="dropdown-target"  onpointerdown="${this.toggle}">${this.target.node || this.target}</span>
                         </span>`;
         }
     }
 
     remove () {
         super.remove();
-        this.target.remove();
+        this.target.remove?.();
         this.menu?.remove();
     }
 
@@ -812,8 +926,8 @@ class App extends StyledComponent {
             new MenuItem("File", { command:  () => console.log("File menu activated") }),
             new MenuItem("Edit"), 
             new Dropdown(new MenuItem("Dropdown"), recursiveMenu),
-            new Dropdown(new MenuItem("Menubar"),  () =>  makeMenu(menubar) ), 
-            new Dropdown(new MenuItem("Mainmenu"),  () =>  makeMenu(mainmenu) ), 
+            new Dropdown(new MenuItem("Menubar"),  () =>  new MenuWidget(menubar) ), 
+            new Dropdown(new MenuItem("Mainmenu"),  () =>  new MenuWidget(mainmenu) ), 
             new Dropdown(new MenuItem("Widget"),  () =>  new Widget(widget2) ) 
         );
     }
