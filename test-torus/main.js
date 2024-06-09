@@ -652,7 +652,7 @@ class Dropdown extends StyledComponent {
                     content: "\\25E2";
                     font-size: 4pt;
                     position: absolute;
-                    right: -10px;
+                    right: -1em;
                     bottom: 0%
                 }
                 & > .dropdown-panel {
@@ -688,18 +688,21 @@ class Dropdown extends StyledComponent {
     }
 
     compose() {
-        let x = jdom`<div class="dropdown-target"  onpointerdown="${this.toggle}">
+        let x = jdom`<div class="dropdown-target"  
+                          onpointerdown="${this.toggle}">
                         ${this.target.node || this.target}
                     </div>`;
         if (this.active) {
-            return jdom`<div class="dropdown-container direction-${this.direction} active"> 
+            return jdom`<div class="dropdown-container 
+                             direction-${this.direction} active"> 
                             ${x}
                             <div class="dropdown-panel">
                                 ${this.menu.node}
                             </div>
                         </div>`;
         } else {
-            return jdom`<div class="dropdown-container direction-${this.direction}">${x}</div>`;
+            return jdom`<div class="dropdown-container 
+                             direction-${this.direction}">${x}</div>`;
         }
     }
 
