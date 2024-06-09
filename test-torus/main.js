@@ -6,7 +6,7 @@ for (const exportedName in Torus) {
 }
 
 const lightPalette = [
-    '#555', '#888', '#ddd', '#eee', '#f8f8f8'
+    '#333', '#888', '#ddd', '#eee', '#f8f8f8'
 ];
 
 const COLOR = lightPalette;
@@ -410,7 +410,7 @@ class Widget extends StyledComponent {
                 border-top-right-radius: 4px;
             }
             .tab-active {
-                color: black;
+                color: ${COLOR[0]};
                 background-color: ${COLOR[4]};
             }  
             .tabs-body {
@@ -419,8 +419,8 @@ class Widget extends StyledComponent {
             .menu-button {
                 &.explicit-buttons {
                     border-radius: 6px;
-                    background-color: ${COLOR[0]};
-                    color: ${COLOR[3]};
+                    background-color: ${COLOR[1]};
+                    color: ${COLOR[4]};
                     padding: 2px 10px;
                 }
             }      
@@ -578,6 +578,10 @@ class PopupButton extends StyledComponent {
                 font-size: 10pt;
             }
 
+            .popup-target {
+                padding: 2px 10px;
+            }
+
             .popup-panel {
                 min-width: 160px;
                 background-color: ${COLOR[0]};
@@ -604,16 +608,16 @@ class PopupButton extends StyledComponent {
     }
 
     compose() {
-        return jdom`<span class="popup-container"> 
-            <button onclick="${this.handleClick}">A popup button</button>
+        return jdom`<div class="popup-container"> 
+            <div class="popup-target" onclick="${this.handleClick}">Popup</div>
             ${this.active ?
-            jdom`<span class="popup-panel">
+            jdom`<div class="popup-panel">
             <ul>
             <li>First item</li>
             <li>Second item</li>
             <li>Third item</li>
-            </ul></span>`: ``}
-        </span>
+            </ul></div>`: ``}
+        </div>
         `;
     }
 
@@ -891,7 +895,6 @@ class Menu extends StyledComponent {
             display: block;
             list-style: none;
             text-align: left;
-            font-size: 10pt;
             line-height: 1.5;
  
             li {
@@ -983,6 +986,7 @@ class App extends StyledComponent {
         max-width: 1600px;
         margin: 0 auto;
         overflow: hidden;
+        font-size: 11pt;
 
         .prevent-select {
             -webkit-user-select: none; /* Safari */
@@ -1013,7 +1017,6 @@ class App extends StyledComponent {
                 height: 32px;
                 margin: 0px 0px;
                 padding: 0px 6px;
-                font-size: 11pt;
                 background: #ffffff;
                 border: 0;
                 cursor: pointer;
@@ -1082,4 +1085,5 @@ document.body.appendChild(app.node);
 
 //> Basic grey background and reset of the default margin on `<body>`
 document.body.style.backgroundColor = COLOR[4];
+document.body.style.color = COLOR[0];
 document.body.style.margin = '0';
