@@ -84,7 +84,7 @@ const makeTable = (cols, tiles) => {
 const makeTile = (cols, tiles) => {
     let t = [ ...tiles ]; // make a copy (FIXME: maybe not needed anymore)
     let x = jdom`<div class="tile" 
-                      style="width:100%; grid-template-columns:${"auto ".repeat(cols)};">
+                      style="grid-template-columns:${"auto ".repeat(cols)};">
             ${t.map( el => jdom`<div class="cell">
                 ${ makeWidget(el) }</div>`)}
             </div>`;
@@ -416,7 +416,7 @@ class Widget extends StyledComponent {
             .tabs-body {
                 border-top: solid 0px ${COLOR[0]};
             }
-            .menu-button {
+            &.widget .menu-button {
                 &.explicit-buttons {
                     border-radius: 6px;
                     background-color: ${COLOR[1]};
@@ -986,7 +986,7 @@ class App extends StyledComponent {
         max-width: 1600px;
         margin: 0 auto;
         overflow: hidden;
-        font-size: 11pt;
+        font-size: 10pt;
 
         .prevent-select {
             -webkit-user-select: none; /* Safari */
