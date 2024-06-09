@@ -65,8 +65,10 @@ const makeTable = (cols, tiles) => {
     while (tiles.length) t.push(tiles.splice(0, cols));
     console.log(t);
     let x = jdom`<div class="table">
-        ${t.map( row => jdom`<div class="row"> 
-            ${row.map (el => jdom`<div class="cell">${ makeWidget(el) }</div>`)}
+            ${t.map( row => jdom`<div class="row"> 
+                ${row.map (el => jdom`<div class="cell">
+                    ${ makeWidget(el) }
+                </div>`)}
             </div>` )} 
         </div>`;
     return x;
@@ -74,9 +76,11 @@ const makeTable = (cols, tiles) => {
 
 const makeTile = (cols, tiles) => {
     let t = [ ...tiles ]; // make a copy (FIXME: maybe not needed anymore)
-    let x = jdom`<div class="tile" style="width:100%; grid-template-columns:${"auto ".repeat(cols)};">
-        ${t.map( el => jdom`<div class="cell">${ makeWidget(el) }</div>`)}
-        </div>`;
+    let x = jdom`<div class="tile" 
+                      style="width:100%; grid-template-columns:${"auto ".repeat(cols)};">
+            ${t.map( el => jdom`<div class="cell">
+                ${ makeWidget(el) }</div>`)}
+            </div>`;
     return x;
 }
 
@@ -160,6 +164,7 @@ const makeWidget = (desc, props = {}) => {
             return makeWidget(desc.attrs[0], props);
 
         case "inflate" :
+            //FIXME: ignored for the moment
             return makeWidget(desc.attrs[0], props);
 
         case "greyed" : 
@@ -178,6 +183,7 @@ const makeWidget = (desc, props = {}) => {
         }
 
         case "text-opaque" : {
+            //FIXME: better representation?
             return jdom`<div>${fromTeXmacsEncoding(desc.attrs[0])}</div>`;
         }
 
@@ -211,7 +217,7 @@ const makeWidget = (desc, props = {}) => {
                 console.log(`toggle-button-${myId} -> ${tb.checked}`);
                 command(buttonState);
             };
-            clickClosure.bind(this);
+            //clickClosure.bind(this);
             return jdom`<div class="toggle-button">
                 <input type="checkbox" id="toggle-button-${myId}" onclick="${clickClosure}" value="${buttonState}">
                 </input></div>`;
@@ -297,7 +303,6 @@ const makeWidget = (desc, props = {}) => {
                 let m = new MenuWidget(desc.attrs[1]); 
                 return m; 
             }
-            let pos = desc.attrs[2].toLowerCase() + '-' + desc.attrs[3].toLowerCase();
             let dd = new Dropdown(label, menuPromise, 
                 desc.attrs[2].toLowerCase(), 
                 desc.attrs[3].toLowerCase());
@@ -352,21 +357,27 @@ class Widget extends StyledComponent {
                     gap: 5px;
                     padding: 4px 0px;
 
-                    > .list-item {
+                    > .list-item > * {
                         padding: 0px 5px;
                     }
                 }
                 .vlist {
-                    > .list-item {
+                    > .list-item > * {
                         padding: 2px 10px;
                     }
                 }
-            }
-            .list-item {
-                    &:hover {
+                .list-item {
+                    & > :hover {
                         background-color: #ddd;
                     }
-            }   
+                    & > .active  {
+                        background-color: #555;
+                        & > .dropdown-target {
+                            color: #eee;
+                        }
+                    }
+                }   
+            }
             .toggle-button {
                 width: 100%;
                 text-align: center;
@@ -460,6 +471,37 @@ class Panel extends StyledComponent {
         this.handlePointerdown = this.handlePointerdown.bind(this);
         this.handlePointerup = this.handlePointerup.bind(this);
         this.handlePointermove = this.handlePointermove.bind(this);
+    }
+
+    styles() {
+        return css`
+            box-sizing: border-box;
+            border: 0;
+            box-shadow: 0 3px 8px -1px rgba(0, 0, 0, .3);
+            border-radius: 6px;
+            background: #fff;
+            height: 100%;
+            width: 600px;
+            flex-shrink: 0;
+            overflow: clip;
+
+            display: flex;
+            flex-direction: row;
+            align-items: flex-start;
+            flex-wrap: nowrap;
+            justify-content: space-between;
+            .panel-canvas{
+                padding: 12px;
+            }
+            .panel-resizer {
+                width: 10px;
+                height: 100%;
+                transition: all .1s ease-out;
+                &:hover {
+                    background: #aaa;
+                }
+            }
+        `;
     }
 
     compose() {
@@ -586,22 +628,15 @@ class Dropdown extends StyledComponent {
     styles() {
         return css`
             position: relative;
-            display: inline-block;
             cursor: pointer;
             user-select: none;
+            width: auto;
+            flex: true;
+            flex-direction: row nowrap;
 
-            .dropdown-container {
-                width: 100%;
+            .dropdown-target {
+                position: relative;
             }
-
-            &.dropdown-container::after {
-                font-size: 12px;
-                content: "\\25BF";
-                position: absolute;
-                top: 60%;
-                right: 0%;
-            }
-
             .dropdown-panel {
                 min-width: 200px;
                 position: absolute;
@@ -612,39 +647,59 @@ class Dropdown extends StyledComponent {
                 border-radius: 3px;
                 box-shadow: 0 3px 8px -1px rgba(0, 0, 0, .3);
             }
-
             .direction-left-bottom {
-                left: 0%;
-                top: 100%;
+                & > .dropdown-target::after {
+                    content: "\\25E2";
+                    font-size: 4pt;
+                    position: absolute;
+                    right: -10px;
+                    bottom: 0%
+                }
+                & > .dropdown-panel {
+                    left: 0%;
+                    top: 100%;
+                }
             }
-
             .direction-right-top {
-                left: 100%;
-                top: 0%;
-            }
-
+                & > .dropdown-target::after {    
+                    content: "\\23F5";
+                    position: absolute;
+                    right: 0%;
+                    top: 0%;
+                }
+                & > .dropdown-panel {
+                    left: 100%;
+                    top: 0%;
+                }
+            } 
             .direction-left-top {
-                left: 0%;
-                top: 0%;
+                > .dropdown-panel {
+                    left: 0%;
+                    top: 0%;
+                }
             }
-
             .direction-right-bottom {
-                left: 100%;
-                top: 100%;
+                > .dropdown-panel {
+                    left: 100%;
+                    top: 100%;
+                }
             }
         `;
     }
 
     compose() {
+        let x = jdom`<div class="dropdown-target"  onpointerdown="${this.toggle}">
+                        ${this.target.node || this.target}
+                    </div>`;
         if (this.active) {
-            return jdom`<span class="dropdown-container active"> 
-                        <span class="dropdown-target"  onpointerdown="${this.toggle}">${this.target.node || this.target}</span>  
-                        <span class="dropdown-panel direction-${this.direction}">${this.menu.node}</span>
-                        </span>`;
+            return jdom`<div class="dropdown-container direction-${this.direction} active"> 
+                            ${x}
+                            <div class="dropdown-panel">
+                                ${this.menu.node}
+                            </div>
+                        </div>`;
         } else {
-            return jdom`<span class="dropdown-container"> 
-                        <span class="dropdown-target"  onpointerdown="${this.toggle}">${this.target.node || this.target}</span>
-                        </span>`;
+            return jdom`<div class="dropdown-container direction-${this.direction}">${x}</div>`;
         }
     }
 
@@ -724,23 +779,16 @@ class Tooltip extends StyledComponent {
     compose() {
         // target can be a string or a Component
         let r = this.target.node || this.target;
-        return jdom`<div class="tooltip">${r}<div class="tooltip-tip">${this.tip.node}</div></div>`;
+        return jdom`<div class="tooltip">
+                        ${r}
+                        <div class="tooltip-tip">${this.tip.node}</div>
+                    </div>`;
     }
 }
 
 class MenuSeparator extends Component {
     compose() {
         return jdom`<div class="separator"></div>`;
-    }
-}
-
-class MonochromeComponent extends Component {
-    init (color) {
-        this.color = color;
-    }
-
-    compose() {
-        return jdom`<div class="monochrome" style="width: 20px; height: 20px; background-color:${this.color}"></div>`;
     }
 }
 
@@ -980,6 +1028,37 @@ class App extends StyledComponent {
             overflow: scroll clip;
             gap: 15px;
         }
+        }
+        
+        .panel {
+            box-sizing: border-box;
+            border: 0;
+            box-shadow: 0 3px 8px -1px rgba(0, 0, 0, .3);
+            border-radius: 6px;
+            background: #fff;
+            height: 100%;
+            width: 600px;
+            flex-shrink: 0;
+            overflow: clip;
+
+            display: flex;
+            flex-direction: row;
+            align-items: flex-start;
+            flex-wrap: nowrap;
+            justify-content: space-between;
+            .panel-canvas{
+                padding: 12px;
+            }
+            .panel-resizer {
+                width: 10px;
+                height: 100%;
+                transition: all .1s ease-out;
+                &:hover {
+                    background: #aaa;
+                }
+            }
+        }
+        }        
         
         .panel {
             box-sizing: border-box;
