@@ -5,6 +5,13 @@ for (const exportedName in Torus) {
     window[exportedName] = Torus[exportedName];
 }
 
+const lightPalette = [
+    '#555', '#888', '#ddd', '#eee', '#f8f8f8'
+];
+
+const COLOR = lightPalette;
+
+
 /******************************************************************************/
 // General utilities
 
@@ -368,12 +375,12 @@ class Widget extends StyledComponent {
                 }
                 .list-item {
                     & > :hover {
-                        background-color: #ddd;
+                        background-color: ${COLOR[2]};
                     }
                     & > .active  {
-                        background-color: #555;
+                        background-color: ${COLOR[1]};
                         & > .dropdown-target {
-                            color: #eee;
+                            color: ${COLOR[4]};
                         }
                     }
                 }   
@@ -391,24 +398,29 @@ class Widget extends StyledComponent {
                 gap: 0px;
                 justify-content: center;
                 padding-top: 5px;
-                background-color: #999;
+                background-color: ${COLOR[0]};
+                border-top-left-radius: 4px;
+                border-top-right-radius: 4px;
             }
             .tabs-bar-tab {
                 padding: 5px 10px;
-                color: #eee;
+                color: ${COLOR[3]};
+                background-color: ${COLOR[1]};
+                border-top-left-radius: 4px;
+                border-top-right-radius: 4px;
             }
             .tab-active {
                 color: black;
-                background-color: #fefefe;
+                background-color: ${COLOR[4]};
             }  
             .tabs-body {
-                border-top: solid 0px #555;
+                border-top: solid 0px ${COLOR[0]};
             }
             .menu-button {
                 &.explicit-buttons {
                     border-radius: 6px;
-                    background-color: #888;
-                    color: white;
+                    background-color: ${COLOR[0]};
+                    color: ${COLOR[3]};
                     padding: 2px 10px;
                 }
             }      
@@ -420,8 +432,8 @@ class Widget extends StyledComponent {
                 /* Tooltip text */
                 & .tooltip-tip {
                     visibility: hidden;
-                    background-color: black;
-                    color: #ddd;
+                    background-color: ${COLOR[0]};
+                    color: ${COLOR[2]};
                     text-align: center;
                     padding: 5px 5px;
                     border-radius: 6px;
@@ -568,8 +580,8 @@ class PopupButton extends StyledComponent {
 
             .popup-panel {
                 min-width: 160px;
-                background-color: #555;
-                color: #fff;
+                background-color: ${COLOR[0]};
+                color: ${COLOR[4]};
                 border-radius: 3px;
                 position: absolute;
                 z-index: 1;
@@ -586,7 +598,7 @@ class PopupButton extends StyledComponent {
                 margin-left: -5px;
                 border-width: 5px;
                 border-style: solid;
-                border-color: transparent transparent #555 transparent;
+                border-color: transparent transparent ${COLOR[0]} transparent;
             }
         `;
     }
@@ -640,10 +652,10 @@ class Dropdown extends StyledComponent {
             .dropdown-panel {
                 min-width: 200px;
                 position: absolute;
-                background-color: #fafafa;
+                background-color: ${COLOR[4]};
                 z-index: 1;
                 border: 0.5px solid;
-                border-color: #ccc;
+                border-color: ${COLOR[4]};
                 border-radius: 3px;
                 box-shadow: 0 3px 8px -1px rgba(0, 0, 0, .3);
             }
@@ -753,8 +765,8 @@ class Tooltip extends StyledComponent {
         /* Tooltip text */
         & .tooltip-tip {
             visibility: hidden;
-            background-color: black;
-            color: #ddd;
+            background-color: ${COLOR[0]};
+            color: ${COLOR[4]};
             text-align: center;
             padding: 5px 5px;
             border-radius: 6px;
@@ -886,23 +898,23 @@ class Menu extends StyledComponent {
                 padding: 0px 10px;
                 &:hover {
                     border-radius: 3px;
-                    background-color: #f0f0f0;
+                    background-color: ${COLOR[4]};
                 }
             }
 
             .separator {
                 height: 1px;
-                background-color: #f0f0f0;
+                background-color: ${COLOR[4]};
                 margin: 5px 10px;
             }
 
             .active {
-                background-color: #ddd;
+                background-color: ${COLOR[2]};
                 border-radius: 3px;
             }
 
             .greyed {
-                color: #ccc;
+                color: ${COLOR[3]};
             }
         `;
     }
@@ -1008,7 +1020,7 @@ class App extends StyledComponent {
             }
 
             .active {
-                background-color: #ddd;
+                background-color: ${COLOR[3]};
                 border-radius: 4px;
             }
 
@@ -1069,5 +1081,5 @@ const app = new App();
 document.body.appendChild(app.node);
 
 //> Basic grey background and reset of the default margin on `<body>`
-document.body.style.backgroundColor = '#f8f8f8';
+document.body.style.backgroundColor = COLOR[4];
 document.body.style.margin = '0';
