@@ -764,30 +764,29 @@ class Tooltip extends StyledComponent {
         return css`
         position: relative;
         display: inline-block;
-        border-bottom: 1px dotted black; /* If you want dots under the hoverable text */
+        // dots under the hoverable text
+        border-bottom: 1px dotted black; 
 
-        /* Tooltip text */
         & .tooltip-tip {
             visibility: hidden;
             background-color: ${COLOR[0]};
             color: ${COLOR[4]};
-            text-align: center;
             padding: 5px 5px;
             border-radius: 6px;
  
             opacity: 0;
             transition: opacity 0s linear 0s;
           
-            /* Position the tooltip text - see examples below! */
             position: absolute;
             left: 100%;
             z-index: 2;
 
-            max-width: 400px;
+            max-width: 600px;
             min-width: 100px;
         }
 
-        /* Show the tooltip text when you mouse over the tooltip container */
+        // show the tooltip text when the mouse 
+        // is over the tooltip container 
         &:hover > div.tooltip-tip {
             visibility: visible;
             opacity: 1;
