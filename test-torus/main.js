@@ -1031,66 +1031,6 @@ class App extends StyledComponent {
             overflow: scroll clip;
             gap: 15px;
         }
-        }
-        
-        .panel {
-            box-sizing: border-box;
-            border: 0;
-            box-shadow: 0 3px 8px -1px rgba(0, 0, 0, .3);
-            border-radius: 6px;
-            background: #fff;
-            height: 100%;
-            width: 600px;
-            flex-shrink: 0;
-            overflow: clip;
-
-            display: flex;
-            flex-direction: row;
-            align-items: flex-start;
-            flex-wrap: nowrap;
-            justify-content: space-between;
-            .panel-canvas{
-                padding: 12px;
-            }
-            .panel-resizer {
-                width: 10px;
-                height: 100%;
-                transition: all .1s ease-out;
-                &:hover {
-                    background: #aaa;
-                }
-            }
-        }
-        }        
-        
-        .panel {
-            box-sizing: border-box;
-            border: 0;
-            box-shadow: 0 3px 8px -1px rgba(0, 0, 0, .3);
-            border-radius: 6px;
-            background: #fff;
-            height: 100%;
-            width: 600px;
-            flex-shrink: 0;
-            overflow: clip;
-
-            display: flex;
-            flex-direction: row;
-            align-items: flex-start;
-            flex-wrap: nowrap;
-            justify-content: space-between;
-            .panel-canvas{
-                padding: 12px;
-            }
-            .panel-resizer {
-                width: 10px;
-                height: 100%;
-                transition: all .1s ease-out;
-                &:hover {
-                    background: #aaa;
-                }
-            }
-        }
         `;
     }
 
