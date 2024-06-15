@@ -164,6 +164,13 @@ const makeWidget = (desc, props = {}) => {
             return makeWidget("ERROR: tabs-bar/body out of context");
         }
 
+        case "canvas" : {
+            let w = desc.attrs[1]; 
+            let h = desc.attrs[2];
+            if (w[0] === '-') w = w.substring(1);
+            return jdom`<div class="canvas" style="width:${w}; height:${h}">${ makeWidget(desc.attrs[6]) }</div>`;
+        }
+
         // attribute elements
 
         case "help-balloon" : 
@@ -180,6 +187,12 @@ const makeWidget = (desc, props = {}) => {
 
         case "with-explicit-buttons" :
             props.explicitButtons = true;
+            return makeWidget(desc.attrs[0], props);
+
+        case "resize-widget" :
+            // 'widths' and 'heights' are vectors of min, default and maximum sizes
+            props.widths  = desc.attrs[1];
+            props.heights = desc.attrs[2];
             return makeWidget(desc.attrs[0], props);
 
         // terminal elements
@@ -356,6 +369,10 @@ class Widget extends StyledComponent {
                 flex-flow: row nowrap;
             }
             .vlist {
+                display: flex;
+                flex-flow: column nowrap;
+            }
+            .canvas {
                 display: flex;
                 flex-flow: column nowrap;
             }
@@ -762,36 +779,37 @@ class Tooltip extends StyledComponent {
 
     styles() {
         return css`
-        position: relative;
-        display: inline-block;
-        // dots under the hoverable text
-        border-bottom: 1px dotted black; 
+            position: relative;
+            display: inline-block;
+            // dots under the hoverable text
+            border-bottom: 1px dotted black; 
 
-        & .tooltip-tip {
-            visibility: hidden;
-            background-color: ${COLOR[0]};
-            color: ${COLOR[4]};
-            padding: 5px 5px;
-            border-radius: 6px;
- 
-            opacity: 0;
-            transition: opacity 0s linear 0s;
-          
-            position: absolute;
-            left: 100%;
-            z-index: 2;
+            & .tooltip-tip {
+                visibility: hidden;
+                background-color: ${COLOR[0]};
+                color: ${COLOR[4]};
+                padding: 5px 5px;
+                border-radius: 6px;
+            
+                opacity: 0;
+                transition: opacity 0s linear 0s;
+            
+                position: absolute;
+                left: 100%;
+                z-index: 2;
 
-            max-width: 600px;
-            min-width: 100px;
-        }
+                max-width: 600px;
+                min-width: 100px;
+            }
 
-        // show the tooltip text when the mouse 
-        // is over the tooltip container 
-        &:hover > div.tooltip-tip {
-            visibility: visible;
-            opacity: 1;
-            transition: opacity 0.25s linear 1.5s;
-        }`;
+           // show the tooltip text when the mouse 
+           // is over the tooltip container 
+           &:hover > div.tooltip-tip {
+               visibility: visible;
+               opacity: 1;
+               transition: opacity 0.25s linear 1.5s;
+           }
+        `;
     }
 
     compose() {
@@ -968,7 +986,7 @@ class App extends StyledComponent {
             new Dropdown(new MenuItem("Dropdown"), recursiveMenu),
             new Dropdown(new MenuItem("Menubar"),  () =>  new MenuWidget(menubar) ), 
             new Dropdown(new MenuItem("Mainmenu"),  () =>  new MenuWidget(mainmenu) ), 
-            new Dropdown(new MenuItem("Widget"),  () =>  new Widget(widget2) ) 
+            new Dropdown(new MenuItem("Widget"),  () =>  new Widget(form3) ) 
         );
     }
 
